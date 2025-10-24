@@ -36,8 +36,46 @@ class GroupeEtudiants extends Model
     // Méthodes
     public function inviterMembre($etudiantId)
     {
+        // Charger l'étudiant à inviter
+        $etudiant = User::find($etudiantId);
+
+        if (!$etudiant) {
+            throw new \Exception("Étudiant introuvable");
+        }
+
+        // Vérifier que c'est bien un étudiant
+        if (!$etudiant->estEtudiant()) {
+            throw new \Exception("Seuls les étudiants peuvent être invités dans un groupe");
+        }
+
+        // Vérifier le nombre maximum de membres
         if ($this->membres()->count() >= 2) { // Chef + 2 membres max
             throw new \Exception("Le groupe ne peut pas avoir plus de 3 membres");
+        }
+
+        // Vérifier que l'étudiant n'est pas déjà dans le groupe
+        if ($this->membres()->where('users.id', $etudiantId)->exists()) {
+            throw new \Exception("Cet étudiant fait déjà partie du groupe");
+        }
+
+        // Vérifier que le chef et l'étudiant invité sont de la même filière
+        $chef = $this->chefGroupe;
+        if ($etudiant->filiere_id != $chef->filiere_id) {
+            throw new \Exception(
+                "Tous les membres d'un groupe doivent être de la même filière. " .
+                "Filière du groupe : " . $chef->filiere->nom
+            );
+        }
+
+        // Vérifier que tous les membres existants sont de la même filière
+        $membresExistants = $this->membres()->wherePivot('statut', '!=', 'refuse')->get();
+        foreach ($membresExistants as $membre) {
+            if ($membre->filiere_id != $etudiant->filiere_id) {
+                throw new \Exception(
+                    "Tous les membres d'un groupe doivent être de la même filière. " .
+                    "Filière requise : " . $membre->filiere->nom
+                );
+            }
         }
 
         $this->membres()->attach($etudiantId, ['statut' => 'invite']);
