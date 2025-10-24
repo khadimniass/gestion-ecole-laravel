@@ -11,6 +11,14 @@ class PfePolicy
     use HandlesAuthorization;
 
     /**
+     * Determine if the user can view any PFEs.
+     */
+    public function viewAny(User $user)
+    {
+        return true; // Tous les utilisateurs authentifiés peuvent voir la liste
+    }
+
+    /**
      * Determine if the user can view the PFE.
      */
     public function view(User $user, Pfe $pfe)
