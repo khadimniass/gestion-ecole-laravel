@@ -121,8 +121,8 @@ Route::middleware(['auth'])->group(function () {
         // Validation des sujets
         Route::prefix('sujets')->name('sujets.')->group(function () {
             Route::get('/validation', [SujetPfeController::class, 'indexValidation'])->name('validation');
-            Route::post('/{sujet}/valider', [SujetPfeController::class, 'valider'])->name('valider');
-            Route::post('/{sujet}/rejeter', [SujetPfeController::class, 'rejeter'])->name('rejeter');
+            Route::patch('/{sujet}/valider', [SujetPfeController::class, 'valider'])->name('valider');
+            Route::patch('/{sujet}/rejeter', [SujetPfeController::class, 'rejeter'])->name('rejeter');
         });
 
         // Gestion des années universitaires
