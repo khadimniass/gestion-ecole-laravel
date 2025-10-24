@@ -154,7 +154,7 @@
                         <h5 class="mb-0"><i class="fas fa-cog"></i> Actions</h5>
                     </div>
                     <div class="card-body">
-                        <a href="{{ route('pfes.edit', $pfe) }}" class="btn btn-warning w-100 mb-2">
+                        <a href="{{ route('enseignant.pfes.edit', $pfe) }}" class="btn btn-warning w-100 mb-2">
                             <i class="fas fa-edit"></i> Modifier
                         </a>
                     </div>
