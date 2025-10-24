@@ -99,7 +99,7 @@
                                 {{ $demande->sujet ? $demande->sujet->titre : $demande->sujet_propose }}
                             </p>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('demandes.show', $demande) }}"
+                                <a href="{{ route('enseignant.demandes.show', $demande) }}"
                                    class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>

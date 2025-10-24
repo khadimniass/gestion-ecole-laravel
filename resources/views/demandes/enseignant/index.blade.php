@@ -41,7 +41,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('demandes.show', $demande) }}"
+                                <a href="{{ route('enseignant.demandes.show', $demande) }}"
                                    class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye"></i>
                                 </a>

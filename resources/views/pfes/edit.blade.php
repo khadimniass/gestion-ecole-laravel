@@ -12,7 +12,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('pfes.update', $pfe) }}" method="POST">
+            <form action="{{ route('enseignant.pfes.update', $pfe) }}" method="POST">
                 @csrf
                 @method('PUT')
 
