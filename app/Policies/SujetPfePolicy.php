@@ -86,6 +86,6 @@ class SujetPfePolicy
      */
     public function viewValidation(User $user)
     {
-        return $user->estCoordinateur();
+        return $user->estCoordinateur() || $user->estAdmin();
     }
 }
