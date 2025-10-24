@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AnneeUniversitaire;
 use App\Models\DemandeEncadrement;
 use App\Models\SujetPfe;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
