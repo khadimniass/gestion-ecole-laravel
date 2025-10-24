@@ -18,7 +18,7 @@
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url('/') }}">
+        <a class="navbar-brand" href="{{ route('home') }}">
             <i class="fas fa-graduation-cap"></i> Gestion PFE
         </a>
 
