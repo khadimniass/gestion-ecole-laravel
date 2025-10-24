@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Pfe extends Model
 {
     use HasFactory;
+
+    protected $table = 'pfes';
+
     protected $fillable = [
         'numero_pfe', 'sujet_id', 'encadrant_id', 'annee_universitaire_id',
         'date_debut', 'date_fin_prevue', 'date_fin_reelle', 'statut',
