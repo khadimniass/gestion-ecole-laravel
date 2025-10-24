@@ -182,6 +182,24 @@ class DemandeEncadrementController extends Controller
         return back()->with('success', 'Demande refusée.');
     }
 
+    public function destroy(DemandeEncadrement $demande)
+    {
+        // Vérifier que l'étudiant est bien le propriétaire de la demande
+        if ($demande->etudiant_id !== Auth::id()) {
+            abort(403, 'Action non autorisée.');
+        }
+
+        // Vérifier que la demande est en attente
+        if ($demande->statut !== 'en_attente') {
+            return back()->with('error', 'Seules les demandes en attente peuvent être annulées.');
+        }
+
+        $demande->delete();
+
+        return redirect()->route('etudiant.demandes.index')
+            ->with('success', 'Demande annulée avec succès.');
+    }
+
     private function creerSujetDepuisDemande(DemandeEncadrement $demande)
     {
         return SujetPfe::create([
