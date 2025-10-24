@@ -16,7 +16,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('demandes.store') }}" method="POST">
+                    <form action="{{ route('etudiant.demandes.store') }}" method="POST">
                         @csrf
 
                         <!-- Choix de l'enseignant -->
@@ -142,7 +142,7 @@
 
                         <!-- Boutons -->
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('demandes.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('etudiant.demandes.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Annuler
                             </a>
                             <button type="submit" class="btn btn-primary">

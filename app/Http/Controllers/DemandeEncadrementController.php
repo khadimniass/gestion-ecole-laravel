@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\AnneeUniversitaire;
 use App\Models\DemandeEncadrement;
+use App\Models\Notification;
+use App\Models\Pfe;
 use App\Models\SujetPfe;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,12 +26,12 @@ class DemandeEncadrementController extends Controller
 
             return view('demandes.enseignant.index', compact('demandes'));
         } else {
-            $demande = DemandeEncadrement::where('etudiant_id', $user->id)
-                ->where('annee_universitaire_id', AnneeUniversitaire::active()->first()->id)
+            $demandes = DemandeEncadrement::where('etudiant_id', $user->id)
                 ->with(['enseignant', 'sujet'])
-                ->first();
+                ->latest()
+                ->paginate(10);
 
-            return view('demandes.etudiant.index', compact('demande'));
+            return view('demandes.etudiant.index', compact('demandes'));
         }
     }
 
