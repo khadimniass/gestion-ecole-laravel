@@ -80,4 +80,12 @@ class SujetPfePolicy
             $sujet->departement === $user->departement &&
             $sujet->statut === 'propose';
     }
+
+    /**
+     * Determine if the user can access the validation page.
+     */
+    public function viewValidation(User $user)
+    {
+        return $user->estCoordinateur();
+    }
 }

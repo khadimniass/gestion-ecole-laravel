@@ -53,7 +53,7 @@ class SujetPfeController extends Controller
 
     public function indexValidation()
     {
-        $this->authorize('valider', SujetPfe::class);
+        $this->authorize('viewValidation', SujetPfe::class);
 
         // Récupérer les sujets en attente de validation dans le département du coordinateur
         $sujets = SujetPfe::with(['proposePar', 'filiere', 'motsCles'])
