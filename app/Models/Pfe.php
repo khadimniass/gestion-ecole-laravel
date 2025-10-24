@@ -108,9 +108,51 @@ class Pfe extends Model
 
     public function ajouterEtudiant($etudiantId, $role = 'membre')
     {
+        // Charger l'étudiant
+        $etudiant = User::find($etudiantId);
+
+        if (!$etudiant) {
+            throw new \Exception("Étudiant introuvable");
+        }
+
+        // Vérifier que c'est bien un étudiant
+        if (!$etudiant->estEtudiant()) {
+            throw new \Exception("L'utilisateur doit être un étudiant");
+        }
+
         // Vérifier le nombre maximum d'étudiants
         if ($this->etudiants()->count() >= $this->sujet->nombre_etudiants_max) {
             throw new \Exception("Nombre maximum d'étudiants atteint pour ce PFE");
+        }
+
+        // Vérifier que l'étudiant n'est pas déjà dans le PFE
+        if ($this->etudiants()->where('users.id', $etudiantId)->exists()) {
+            throw new \Exception("Cet étudiant fait déjà partie de ce PFE");
+        }
+
+        // Validation de la filière : tous les étudiants doivent être de la même filière
+        $etudiantsExistants = $this->etudiants;
+
+        // Si le sujet a une filière spécifiée, vérifier que l'étudiant est de cette filière
+        if ($this->sujet->filiere_id) {
+            if ($etudiant->filiere_id != $this->sujet->filiere_id) {
+                throw new \Exception(
+                    "L'étudiant doit être de la même filière que le sujet (" .
+                    $this->sujet->filiere->nom . ")"
+                );
+            }
+        }
+
+        // Si des étudiants sont déjà dans le PFE, vérifier qu'ils sont de la même filière
+        if ($etudiantsExistants->count() > 0) {
+            $filiereExistante = $etudiantsExistants->first()->filiere_id;
+
+            if ($etudiant->filiere_id != $filiereExistante) {
+                throw new \Exception(
+                    "Tous les étudiants d'un PFE doivent être de la même filière. " .
+                    "Filière requise : " . $etudiantsExistants->first()->filiere->nom
+                );
+            }
         }
 
         $this->etudiants()->attach($etudiantId, ['role_dans_groupe' => $role]);

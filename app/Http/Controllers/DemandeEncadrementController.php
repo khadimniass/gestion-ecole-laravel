@@ -162,7 +162,7 @@ class DemandeEncadrementController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Erreur lors de l\'acceptation de la demande.');
+            return back()->with('error', 'Erreur lors de l\'acceptation de la demande : ' . $e->getMessage());
         }
     }
 
@@ -185,6 +185,7 @@ class DemandeEncadrementController extends Controller
             'titre' => $demande->sujet_propose,
             'description' => $demande->description_sujet,
             'propose_par_id' => $demande->enseignant_id,
+            'filiere_id' => $demande->etudiant->filiere_id, // Lier à la filière de l'étudiant
             'departement' => $demande->enseignant->departement,
             'niveau_requis' => 'tous',
             'nombre_etudiants_max' => $demande->groupe ? $demande->groupe->nombre_membres : 1,
