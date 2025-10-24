@@ -151,6 +151,18 @@ class PfeController extends Controller
             "Rapport_PFE_{$pfe->numero_pfe}.pdf");
     }
 
+    public function downloadPresentation(Pfe $pfe)
+    {
+        $this->authorize('view', $pfe);
+
+        if (!$pfe->presentation_file || !Storage::disk('public')->exists($pfe->presentation_file)) {
+            return back()->with('error', 'Présentation non disponible.');
+        }
+
+        return Storage::disk('public')->download($pfe->presentation_file,
+            "Presentation_PFE_{$pfe->numero_pfe}.pdf");
+    }
+
     public function terminer(Request $request, Pfe $pfe)
     {
         $this->authorize('terminer', $pfe);
