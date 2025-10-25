@@ -1,0 +1,16 @@
+nom,prenom,email,matricule,filiere_code,niveau_etude,telephone
+Sow,Fatou,fatou.sow@etudiant.test,L2024010,INFO,L3,771234567
+Fall,Amadou,amadou.fall@etudiant.test,L2024011,INFO,L3,775551234
+Diop,Mariama,mariama.diop@etudiant.test,L2024012,INFO,L3,779876543
+Ndiaye,Ousmane,ousmane.ndiaye@etudiant.test,L2024013,INFO,L3,773334444
+Sy,Awa,awa.sy@etudiant.test,L2024014,INFO,L3,776665555
+Diallo,Ibrahima,ibrahima.diallo@etudiant.test,L2024015,INFO,L3,772223333
+Sarr,Bineta,bineta.sarr@etudiant.test,L2024016,INFO,L3,778889999
+Kane,Mamadou,mamadou.kane@etudiant.test,L2024017,INFO,L3,774445555
+Gueye,Aida,aida.gueye@etudiant.test,L2024018,INFO,L3,771112222
+Toure,Cheikh,cheikh.toure@etudiant.test,L2024019,INFO,L3,777778888
+Ba,Ndèye,ndeye.ba@etudiant.test,M2024020,INFO,M2,779990000
+Seck,Abdoulaye,abdoulaye.seck@etudiant.test,M2024021,INFO,M2,775556666
+Diouf,Khady,khady.diouf@etudiant.test,M2024022,INFO,M2,773337777
+Cisse,Moustapha,moustapha.cisse@etudiant.test,M2024023,INFO,M2,778881111
+Faye,Coumba,coumba.faye@etudiant.test,M2024024,INFO,M2,772224444
