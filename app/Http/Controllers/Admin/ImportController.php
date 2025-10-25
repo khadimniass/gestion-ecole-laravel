@@ -119,7 +119,7 @@ class ImportController extends Controller
                 $message .= ", $erreurs erreurs rencontrées";
             }
 
-            return redirect()->route('admin.import.index')
+            return redirect()->route('admin.import.form')
                 ->with('success', $message)
                 ->with('erreurs', $erreursDetails);
 
@@ -202,7 +202,7 @@ class ImportController extends Controller
                 $message .= ", $erreurs erreurs rencontrées";
             }
 
-            return redirect()->route('admin.import.index')
+            return redirect()->route('admin.import.form')
                 ->with('success', $message)
                 ->with('erreurs', $erreursDetails);
 
