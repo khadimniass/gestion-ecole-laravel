@@ -49,7 +49,7 @@ class DemandeEncadrementController extends Controller
             ->first();
 
         if ($demandeExistante) {
-            return redirect()->route('demandes.show', $demandeExistante)
+            return redirect()->route('etudiant.demandes.show', $demandeExistante)
                 ->with('warning', 'Vous avez déjà une demande d\'encadrement cette année.');
         }
 
