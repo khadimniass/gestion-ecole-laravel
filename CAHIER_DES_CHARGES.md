@@ -445,7 +445,4 @@ Application de gestion des encadrements de Projets de Fin d'Études permettant a
 **Signature** : _______________
 
 ---
-
-> 🤖 Document généré automatiquement par Claude Code
->
-> Pour toute question : https://github.com/khadimniass/gestion-ecole-laravel
+*Fin du Cahier des Charges*

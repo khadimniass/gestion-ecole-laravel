@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @stack('styles')
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100"> {{-- Flex + full height --}}
+
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -80,8 +81,8 @@
                             <i class="fas fa-bell"></i>
                             @if(auth()->user()->notifications()->nonLues()->count() > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                        {{ auth()->user()->notifications()->nonLues()->count() }}
-                                    </span>
+                                    {{ auth()->user()->notifications()->nonLues()->count() }}
+                                </span>
                             @endif
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -142,7 +143,7 @@
 @endif
 
 <!-- Contenu Principal -->
-<main class="py-4">
+<main class="flex-fill py-4"> {{-- flex-fill pour occuper l’espace restant --}}
     <div class="container">
         <!-- Messages Flash -->
         @if(session('success'))
@@ -170,10 +171,10 @@
     </div>
 </main>
 
-<!-- Footer -->
-<footer class="bg-dark text-white mt-5 py-3">
+<!-- Footer collé en bas -->
+<footer class="bg-dark text-white mt-auto py-3"> {{-- mt-auto = colle en bas --}}
     <div class="container text-center">
-        <p class="mb-0">&copy; 2024 Système de Gestion PFE - Aissata Elhadj BA</p>
+        <p class="mb-0">&copy; {{ date('Y') }} Système de Gestion PFE - Aissata</p>
     </div>
 </footer>
 
