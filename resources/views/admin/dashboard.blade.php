@@ -147,6 +147,116 @@
         </div>
     </div>
 
+    <!-- Filières et Soutenances -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Filières</h5>
+                    <a href="{{ route('admin.filieres.index') }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-list"></i> Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Filière</th>
+                                    <th>Niveau</th>
+                                    <th class="text-center">Étudiants</th>
+                                    <th class="text-center">Sujets</th>
+                                    <th class="text-center">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($filieres as $filiere)
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $filiere->nom }}</strong>
+                                            <br><small class="text-muted">{{ $filiere->code }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ $filiere->niveau == 'licence' ? 'info' : 'primary' }}">
+                                                {{ ucfirst($filiere->niveau) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">{{ $filiere->etudiants_count }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">{{ $filiere->sujets_count }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-{{ $filiere->active ? 'success' : 'danger' }}">
+                                                {{ $filiere->active ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3">
+                                            <i class="fas fa-graduation-cap fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">Aucune filière</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check"></i> Soutenances à Venir</h5>
+                    <a href="{{ route('admin.soutenances.index') }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-list"></i> Voir tout
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>PFE</th>
+                                    <th>Salle</th>
+                                    <th>Heure</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($soutenancesProchaines as $pfe)
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-calendar"></i>
+                                            {{ $pfe->date_soutenance->format('d/m/Y') }}
+                                        </td>
+                                        <td>
+                                            <strong>{{ $pfe->numero_pfe }}</strong>
+                                            <br><small class="text-muted">{{ Str::limit($pfe->sujet->titre, 30) }}</small>
+                                        </td>
+                                        <td>{{ $pfe->salle_soutenance }}</td>
+                                        <td>{{ $pfe->heure_soutenance }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">
+                                            <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted mb-0">Aucune soutenance prévue</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card">
@@ -161,13 +271,16 @@
                         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
                             <i class="fas fa-user-plus"></i> Créer un utilisateur
                         </a>
+                        <a href="{{ route('admin.filieres.create') }}" class="btn btn-info">
+                            <i class="fas fa-graduation-cap"></i> Créer une filière
+                        </a>
                         <a href="{{ route('admin.sujets.validation') }}" class="btn btn-warning">
                             <i class="fas fa-check"></i> Valider des sujets
                         </a>
-                        <a href="{{ route('admin.export.pfes') }}" class="btn btn-info">
+                        <a href="{{ route('admin.export.pfes') }}" class="btn btn-secondary">
                             <i class="fas fa-download"></i> Exporter les PFE
                         </a>
-                        <a href="{{ route('admin.soutenances.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.soutenances.index') }}" class="btn btn-danger">
                             <i class="fas fa-calendar"></i> Gérer les soutenances
                         </a>
                     </div>
