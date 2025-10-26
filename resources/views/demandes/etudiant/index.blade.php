@@ -36,12 +36,13 @@
                             </td>
                             <td>{{ $demande->created_at->format('d/m/Y') }}</td>
                             <td>
-                                <span class="badge bg-{{
-                                    $demande->statut == 'accepte' ? 'success' :
-                                    ($demande->statut == 'refuse' ? 'danger' : 'warning')
-                                }}">
-                                    {{ ucfirst($demande->statut) }}
-                                </span>
+                                @if($demande->statut == 'accepte')
+                                    <span class="badge bg-success">Acceptée</span>
+                                @elseif($demande->statut == 'refuse')
+                                    <span class="badge bg-danger">Refusée</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                @endif
                             </td>
                             <td>
                                 <a href="{{ route('etudiant.demandes.show', $demande) }}"

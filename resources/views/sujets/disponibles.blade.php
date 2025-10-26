@@ -1,22 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Sujets PFE')
+@section('title', 'Sujets Disponibles')
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-book"></i> Sujets PFE</h1>
-
-        @if(auth()->user()->estEnseignant() || auth()->user()->estCoordinateur())
-            <a href="{{ route('enseignant.sujets.create') }}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Proposer un Sujet
-            </a>
-        @endif
+        <h1><i class="fas fa-book"></i> Sujets PFE Disponibles</h1>
+        <a href="{{ route('etudiant.demandes.create') }}" class="btn btn-success">
+            <i class="fas fa-envelope"></i> Faire une Demande
+        </a>
     </div>
 
     <!-- Filtres -->
     <div class="card mb-3">
         <div class="card-body">
-            <form method="GET" action="{{ route('sujets.index') }}" class="row g-3">
+            <form method="GET" action="{{ route('etudiant.sujets.disponibles') }}" class="row g-3">
                 <div class="col-md-3">
                     <input type="text" class="form-control" name="search"
                            placeholder="Rechercher..." value="{{ request('search') }}">

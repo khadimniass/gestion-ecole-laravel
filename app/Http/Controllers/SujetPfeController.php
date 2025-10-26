@@ -248,6 +248,48 @@ class SujetPfeController extends Controller
         return back()->with('success', 'Sujet rejeté.');
     }
 
+    public function sujetsDisponibles(Request $request)
+    {
+        $user = Auth::user();
+
+        // Vérifier que c'est un étudiant
+        if (!$user->estEtudiant()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $query = SujetPfe::with(['proposePar', 'filiere', 'motsCles'])
+            ->disponibles();
+
+        // Filtrer par niveau (licence ou master) selon le niveau de l'étudiant
+        $niveauEtudiant = substr($user->niveau_etude, 0, 1) === 'L' ? 'licence' : 'master';
+        $query->parNiveau($niveauEtudiant);
+
+        // Filtres optionnels
+        if ($request->filled('departement')) {
+            $query->where('departement', $request->departement);
+        }
+
+        if ($request->filled('filiere_id')) {
+            $query->where('filiere_id', $request->filiere_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('titre', 'like', "%$search%")
+                    ->orWhere('description', 'like', "%$search%")
+                    ->orWhereHas('motsCles', function($q) use ($search) {
+                        $q->where('mot', 'like', "%$search%");
+                    });
+            });
+        }
+
+        $sujets = $query->latest()->paginate(15);
+        $filieres = Filiere::actives()->get();
+
+        return view('sujets.disponibles', compact('sujets', 'filieres'));
+    }
+
     public function destroy(SujetPfe $sujet)
     {
         $this->authorize('delete', $sujet);
