@@ -52,7 +52,21 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'statsDepartements', 'pfesRecents', 'sujetsEnAttente'));
+        // Filières
+        $filieres = \App\Models\Filiere::withCount('etudiants', 'sujets')
+            ->orderBy('nom')
+            ->get();
+
+        // Soutenances à venir
+        $soutenancesProchaines = Pfe::where('statut', 'en_attente_soutenance')
+            ->whereNotNull('date_soutenance')
+            ->where('date_soutenance', '>=', now())
+            ->orderBy('date_soutenance')
+            ->with(['sujet', 'encadrant', 'etudiants'])
+            ->limit(5)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'statsDepartements', 'pfesRecents', 'sujetsEnAttente', 'filieres', 'soutenancesProchaines'));
     }
 
     public function enseignant()
