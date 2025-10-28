@@ -10,11 +10,21 @@
                     <h4><i class="fas fa-user-plus"></i> Inscription</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('register') }}" id="registerForm">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="role" class="form-label">Type de compte</label>
+                            <label for="role" class="form-label">Type de compte <span class="text-danger">*</span></label>
                             <select class="form-select @error('role') is-invalid @enderror"
                                     id="role" name="role" required>
                                 <option value="">-- Choisir --</option>
@@ -27,7 +37,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Nom complet</label>
+                            <label for="name" class="form-label">Nom complet <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                    id="name" name="name" value="{{ old('name') }}" required>
                             @error('name')
@@ -36,7 +46,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
+                            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror"
                                    id="email" name="email" value="{{ old('email') }}" required>
                             @error('email')
@@ -47,40 +57,34 @@
                         <!-- Champs pour Étudiant -->
                         <div id="etudiant-fields" style="display: none;">
                             <div class="mb-3">
-                                <label for="matricule" class="form-label">Matricule</label>
-                                <input type="text" class="form-control @error('matricule') is-invalid @enderror"
-                                       id="matricule" name="matricule" value="{{ old('matricule') }}">
-                                @error('matricule')
-                                <span class="text-danger small">{{ $message }}</span>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="filiere_id" class="form-label">Filière</label>
+                                <label for="filiere_id" class="form-label">Filière <span class="text-danger">*</span></label>
                                 <select class="form-select @error('filiere_id') is-invalid @enderror"
                                         id="filiere_id" name="filiere_id">
-                                    <option value="">-- Choisir --</option>
+                                    <option value="">-- Choisir une filière --</option>
                                     @foreach($filieres as $filiere)
                                         <option value="{{ $filiere->id }}" {{ old('filiere_id') == $filiere->id ? 'selected' : '' }}>
                                             {{ $filiere->nom }} ({{ $filiere->niveau }})
                                         </option>
                                     @endforeach
                                 </select>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> Votre matricule sera généré automatiquement après l'inscription
+                                </small>
                                 @error('filiere_id')
                                 <span class="text-danger small">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label for="niveau_etude" class="form-label">Niveau d'études</label>
+                                <label for="niveau_etude" class="form-label">Niveau d'études <span class="text-danger">*</span></label>
                                 <select class="form-select @error('niveau_etude') is-invalid @enderror"
                                         id="niveau_etude" name="niveau_etude">
-                                    <option value="">-- Choisir --</option>
-                                    <option value="L1" {{ old('niveau_etude') == 'L1' ? 'selected' : '' }}>L1</option>
-                                    <option value="L2" {{ old('niveau_etude') == 'L2' ? 'selected' : '' }}>L2</option>
-                                    <option value="L3" {{ old('niveau_etude') == 'L3' ? 'selected' : '' }}>L3</option>
-                                    <option value="M1" {{ old('niveau_etude') == 'M1' ? 'selected' : '' }}>M1</option>
-                                    <option value="M2" {{ old('niveau_etude') == 'M2' ? 'selected' : '' }}>M2</option>
+                                    <option value="">-- Choisir un niveau --</option>
+                                    <option value="L1" {{ old('niveau_etude') == 'L1' ? 'selected' : '' }}>Licence 1 (L1)</option>
+                                    <option value="L2" {{ old('niveau_etude') == 'L2' ? 'selected' : '' }}>Licence 2 (L2)</option>
+                                    <option value="L3" {{ old('niveau_etude') == 'L3' ? 'selected' : '' }}>Licence 3 (L3)</option>
+                                    <option value="M1" {{ old('niveau_etude') == 'M1' ? 'selected' : '' }}>Master 1 (M1)</option>
+                                    <option value="M2" {{ old('niveau_etude') == 'M2' ? 'selected' : '' }}>Master 2 (M2)</option>
                                 </select>
                                 @error('niveau_etude')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -91,10 +95,30 @@
                         <!-- Champs pour Enseignant -->
                         <div id="enseignant-fields" style="display: none;">
                             <div class="mb-3">
-                                <label for="departement" class="form-label">Département</label>
-                                <input type="text" class="form-control @error('departement') is-invalid @enderror"
-                                       id="departement" name="departement" value="{{ old('departement', 'Informatique') }}">
+                                <label for="departement" class="form-label">Département <span class="text-danger">*</span></label>
+                                <select class="form-select @error('departement') is-invalid @enderror"
+                                        id="departement" name="departement">
+                                    <option value="">-- Choisir un département --</option>
+                                    <option value="Informatique" {{ old('departement') == 'Informatique' ? 'selected' : '' }}>Informatique</option>
+                                    <option value="Mathématiques" {{ old('departement') == 'Mathématiques' ? 'selected' : '' }}>Mathématiques</option>
+                                    <option value="Physique" {{ old('departement') == 'Physique' ? 'selected' : '' }}>Physique</option>
+                                    <option value="Chimie" {{ old('departement') == 'Chimie' ? 'selected' : '' }}>Chimie</option>
+                                    <option value="Biologie" {{ old('departement') == 'Biologie' ? 'selected' : '' }}>Biologie</option>
+                                    <option value="Génie Civil" {{ old('departement') == 'Génie Civil' ? 'selected' : '' }}>Génie Civil</option>
+                                    <option value="Génie Électrique" {{ old('departement') == 'Génie Électrique' ? 'selected' : '' }}>Génie Électrique</option>
+                                    <option value="Génie Mécanique" {{ old('departement') == 'Génie Mécanique' ? 'selected' : '' }}>Génie Mécanique</option>
+                                </select>
                                 @error('departement')
+                                <span class="text-danger small">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="specialite" class="form-label">Spécialité (optionnel)</label>
+                                <input type="text" class="form-control @error('specialite') is-invalid @enderror"
+                                       id="specialite" name="specialite" value="{{ old('specialite') }}"
+                                       placeholder="Ex: Intelligence Artificielle">
+                                @error('specialite')
                                 <span class="text-danger small">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -103,25 +127,27 @@
                         <div class="mb-3">
                             <label for="telephone" class="form-label">Téléphone (optionnel)</label>
                             <input type="text" class="form-control @error('telephone') is-invalid @enderror"
-                                   id="telephone" name="telephone" value="{{ old('telephone') }}">
+                                   id="telephone" name="telephone" value="{{ old('telephone') }}"
+                                   placeholder="+221 77 123 45 67">
                             @error('telephone')
                             <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">Mot de passe</label>
+                            <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                   id="password" name="password" required>
+                                   id="password" name="password" required minlength="8">
+                            <small class="form-text text-muted">Minimum 8 caractères</small>
                             @error('password')
                             <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="password_confirmation" class="form-label">Confirmer le mot de passe</label>
+                            <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
                             <input type="password" class="form-control"
-                                   id="password_confirmation" name="password_confirmation" required>
+                                   id="password_confirmation" name="password_confirmation" required minlength="8">
                         </div>
 
                         <div class="d-grid">
@@ -149,21 +175,47 @@
             const roleSelect = document.getElementById('role');
             const etudiantFields = document.getElementById('etudiant-fields');
             const enseignantFields = document.getElementById('enseignant-fields');
+            
+            // Champs requis selon le rôle
+            const etudiantInputs = ['filiere_id', 'niveau_etude'];
+            const enseignantInputs = ['departement'];
 
             function toggleFields() {
-                if (roleSelect.value === 'etudiant') {
+                const role = roleSelect.value;
+                
+                // Masquer tous les champs
+                etudiantFields.style.display = 'none';
+                enseignantFields.style.display = 'none';
+                
+                // Désactiver tous les champs requis
+                etudiantInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) input.removeAttribute('required');
+                });
+                enseignantInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) input.removeAttribute('required');
+                });
+
+                // Afficher et activer les champs selon le rôle
+                if (role === 'etudiant') {
                     etudiantFields.style.display = 'block';
-                    enseignantFields.style.display = 'none';
-                } else if (roleSelect.value === 'enseignant') {
-                    etudiantFields.style.display = 'none';
+                    etudiantInputs.forEach(id => {
+                        const input = document.getElementById(id);
+                        if (input) input.setAttribute('required', 'required');
+                    });
+                } else if (role === 'enseignant') {
                     enseignantFields.style.display = 'block';
-                } else {
-                    etudiantFields.style.display = 'none';
-                    enseignantFields.style.display = 'none';
+                    enseignantInputs.forEach(id => {
+                        const input = document.getElementById(id);
+                        if (input) input.setAttribute('required', 'required');
+                    });
                 }
             }
 
             roleSelect.addEventListener('change', toggleFields);
+            
+            // Initialiser l'affichage au chargement
             toggleFields();
         });
     </script>
