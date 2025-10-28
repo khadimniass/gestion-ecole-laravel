@@ -61,10 +61,10 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
             'role' => ['required', 'in:etudiant,enseignant'],
             'telephone' => ['nullable', 'string'],
-            'departement' => ['required_if:role,enseignant', 'string'],
+            'departement' => ['nullable', 'required_if:role,enseignant', 'string'],
             'specialite' => ['nullable', 'string', 'max:100'],
-            'filiere_id' => ['required_if:role,etudiant', 'exists:filieres,id'],
-            'niveau_etude' => ['required_if:role,etudiant', 'in:L1,L2,L3,M1,M2'],
+            'filiere_id' => ['nullable', 'required_if:role,etudiant', 'exists:filieres,id'],
+            'niveau_etude' => ['nullable', 'required_if:role,etudiant', 'in:L1,L2,L3,M1,M2'],
         ]);
 
         // Générer automatiquement le matricule pour les étudiants
