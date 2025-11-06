@@ -1,0 +1,365 @@
+@startuml Gestion PFE - Diagramme de Classes
+
+!define ENTITY_COLOR #E8F5E9
+!define ENUM_COLOR #FFF3E0
+!define PIVOT_COLOR #E3F2FD
+
+' =====================================================
+' CLASSES PRINCIPALES
+' =====================================================
+
+class User <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + name: string
+  + email: string
+  + password: string
+  + matricule: string?
+  + role: enum
+  + telephone: string?
+  + departement: string?
+  + filiere_id: bigint?
+  + niveau_etude: enum?
+  + specialite: string?
+  + active: boolean
+  + email_verified_at: timestamp?
+  + remember_token: string?
+  + created_at: timestamp
+  + updated_at: timestamp
+  --
+  + estEnseignant(): bool
+  + estEtudiant(): bool
+  + estAdmin(): bool
+  + estCoordinateur(): bool
+  + peutEncadrer(): bool
+  + aDejaUnPfeEnCours(): bool
+}
+
+class Filiere <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + nom: string
+  + code: string
+  + niveau: enum
+  + departement: string
+  + description: text?
+  + active: boolean
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class AnneeUniversitaire <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + annee: string
+  + date_debut: date
+  + date_fin: date
+  + active: boolean
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class SujetPfe <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + code_sujet: string
+  + titre: string
+  + description: text
+  + objectifs: text?
+  + technologies: text?
+  + propose_par_id: bigint
+  + filiere_id: bigint?
+  + departement: string
+  + niveau_requis: enum
+  + nombre_etudiants_max: integer
+  + statut: enum
+  + valide_par_id: bigint?
+  + date_validation: date?
+  + annee_universitaire_id: bigint
+  + visible: boolean
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class Pfe <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + numero_pfe: string
+  + sujet_id: bigint
+  + encadrant_id: bigint
+  + annee_universitaire_id: bigint
+  + date_debut: date
+  + date_fin_prevue: date
+  + date_fin_reelle: date?
+  + statut: enum
+  + note_finale: decimal?
+  + observations: text?
+  + date_soutenance: date?
+  + salle_soutenance: string?
+  + heure_soutenance: time?
+  + rapport_file: string?
+  + presentation_file: string?
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class DemandeEncadrement <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + etudiant_id: bigint
+  + enseignant_id: bigint
+  + sujet_id: bigint?
+  + titre_sujet_propose: string?
+  + description_sujet_propose: text?
+  + motivation: text
+  + statut: enum
+  + date_reponse: timestamp?
+  + motif_refus: text?
+  + annee_universitaire_id: bigint
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class GroupeEtudiants <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + nom: string
+  + chef_groupe_id: bigint
+  + demande_encadrement_id: bigint?
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class MotCle <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + mot: string
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class Notification <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + user_id: bigint
+  + type: string
+  + titre: string
+  + message: text
+  + data: json?
+  + lue: boolean
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class JurySoutenance <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + pfe_id: bigint
+  + membre_jury_id: bigint
+  + role: enum
+  + note_attribuee: decimal?
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class HistoriqueEncadrement <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + enseignant_id: bigint
+  + annee_universitaire_id: bigint
+  + pfe_id: bigint
+  + nombre_heures: integer?
+  + observations: text?
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class ImportLog <<Entity>> ENTITY_COLOR {
+  + id: bigint
+  + type_import: string
+  + fichier: string
+  + nombre_lignes: integer
+  + nombre_succes: integer
+  + nombre_erreurs: integer
+  + erreurs_details: json?
+  + importe_par: bigint
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+' =====================================================
+' TABLES PIVOT / RELATIONS MANY-TO-MANY
+' =====================================================
+
+class EtudiantsPfe <<Pivot>> PIVOT_COLOR {
+  + pfe_id: bigint
+  + etudiant_id: bigint
+  + role_dans_groupe: enum
+  + note_individuelle: decimal?
+  + appreciation: text?
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class MembresGroupe <<Pivot>> PIVOT_COLOR {
+  + groupe_id: bigint
+  + etudiant_id: bigint
+  + statut: enum
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+class SujetMotCle <<Pivot>> PIVOT_COLOR {
+  + sujet_pfe_id: bigint
+  + mot_cle_id: bigint
+  + created_at: timestamp
+  + updated_at: timestamp
+}
+
+' =====================================================
+' ÉNUMÉRATIONS
+' =====================================================
+
+enum Role ENUM_COLOR {
+  admin
+  coordinateur
+  enseignant
+  etudiant
+}
+
+enum NiveauFiliere ENUM_COLOR {
+  licence
+  master
+}
+
+enum NiveauEtude ENUM_COLOR {
+  L1
+  L2
+  L3
+  M1
+  M2
+}
+
+enum NiveauRequis ENUM_COLOR {
+  licence
+  master
+  tous
+}
+
+enum StatutSujet ENUM_COLOR {
+  propose
+  valide
+  archive
+}
+
+enum StatutPfe ENUM_COLOR {
+  propose
+  en_cours
+  en_attente_soutenance
+  termine
+}
+
+enum StatutDemande ENUM_COLOR {
+  en_attente
+  accepte
+  refuse
+}
+
+enum RoleGroupe ENUM_COLOR {
+  chef
+  membre
+}
+
+enum RoleJury ENUM_COLOR {
+  president
+  rapporteur
+  examinateur
+}
+
+' =====================================================
+' RELATIONS
+' =====================================================
+
+' User Relations
+User "1" -- "0..*" User : filiere >
+User "1" -- "0..*" SujetPfe : propose >
+User "1" -- "0..*" SujetPfe : valide >
+User "1" -- "0..*" Pfe : encadre >
+User "1" -- "0..*" DemandeEncadrement : reçoit (enseignant) >
+User "1" -- "0..*" DemandeEncadrement : envoie (étudiant) >
+User "1" -- "0..1" GroupeEtudiants : chef >
+User "0..*" -- "0..*" GroupeEtudiants : membre via MembresGroupe
+User "0..*" -- "0..*" Pfe : participe via EtudiantsPfe
+User "1" -- "0..*" Notification : reçoit >
+User "1" -- "0..*" JurySoutenance : évalue >
+User "1" -- "0..*" HistoriqueEncadrement : historique >
+User "1" -- "0..*" ImportLog : importe >
+
+' Filiere Relations
+Filiere "1" -- "0..*" User : inscrit >
+Filiere "1" -- "0..*" SujetPfe : concerne >
+
+' AnneeUniversitaire Relations
+AnneeUniversitaire "1" -- "0..*" SujetPfe : période >
+AnneeUniversitaire "1" -- "0..*" Pfe : année >
+AnneeUniversitaire "1" -- "0..*" DemandeEncadrement : année >
+AnneeUniversitaire "1" -- "0..*" HistoriqueEncadrement : année >
+
+' SujetPfe Relations
+SujetPfe "1" -- "0..*" Pfe : devient >
+SujetPfe "1" -- "0..*" DemandeEncadrement : sujet >
+SujetPfe "0..*" -- "0..*" MotCle : décrit par via SujetMotCle
+
+' Pfe Relations
+Pfe "1" -- "0..*" JurySoutenance : évalué par >
+Pfe "1" -- "0..1" HistoriqueEncadrement : trace >
+
+' DemandeEncadrement Relations
+DemandeEncadrement "1" -- "0..1" GroupeEtudiants : groupe >
+
+' GroupeEtudiants Relations (déjà couvert par User)
+
+' Enums Relations
+User ..> Role
+User ..> NiveauEtude
+Filiere ..> NiveauFiliere
+SujetPfe ..> NiveauRequis
+SujetPfe ..> StatutSujet
+Pfe ..> StatutPfe
+DemandeEncadrement ..> StatutDemande
+EtudiantsPfe ..> RoleGroupe
+MembresGroupe ..> StatutDemande
+JurySoutenance ..> RoleJury
+
+' =====================================================
+' NOTES ET CONTRAINTES
+' =====================================================
+
+note top of User
+  Modèle central gérant tous les types d'utilisateurs:
+  - Admin: gestion complète du système
+  - Coordinateur: validation sujets, gestion département
+  - Enseignant: proposition sujets, encadrement
+  - Étudiant: demande encadrement, réalisation PFE
+
+  Le matricule est auto-généré pour les étudiants
+  Format: L20250001 (Licence) ou M20250001 (Master)
+end note
+
+note top of Pfe
+  PFE = Projet de Fin d'Études
+  Cycle de vie:
+  1. Sujet proposé et validé
+  2. Demande d'encadrement acceptée
+  3. PFE en cours
+  4. Soutenance planifiée
+  5. PFE terminé avec note
+end note
+
+note bottom of EtudiantsPfe
+  Table pivot gérant la relation
+  many-to-many entre Pfe et User
+  Permet 1 à 3 étudiants par PFE
+  avec rôle (chef/membre) et notes
+end note
+
+note right of DemandeEncadrement
+  L'étudiant peut demander:
+  - Un sujet existant validé
+  - Proposer un nouveau sujet
+
+  L'enseignant peut:
+  - Accepter
+  - Refuser avec motif
+end note
+
+@enduml

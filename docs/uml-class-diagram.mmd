@@ -1,0 +1,253 @@
+%% Diagramme de Classes UML - Gestion PFE
+%% Format Mermaid - Visualisable sur https://mermaid.live
+
+classDiagram
+    %% ===== CLASSES PRINCIPALES =====
+
+    class User {
+        +bigint id
+        +string name
+        +string email
+        +string password
+        +string matricule
+        +enum role
+        +string telephone
+        +string departement
+        +bigint filiere_id
+        +enum niveau_etude
+        +string specialite
+        +boolean active
+        +estEnseignant() bool
+        +estEtudiant() bool
+        +estAdmin() bool
+        +estCoordinateur() bool
+    }
+
+    class Filiere {
+        +bigint id
+        +string nom
+        +string code
+        +enum niveau
+        +string departement
+        +text description
+        +boolean active
+    }
+
+    class AnneeUniversitaire {
+        +bigint id
+        +string annee
+        +date date_debut
+        +date date_fin
+        +boolean active
+    }
+
+    class SujetPfe {
+        +bigint id
+        +string code_sujet
+        +string titre
+        +text description
+        +text objectifs
+        +text technologies
+        +bigint propose_par_id
+        +bigint filiere_id
+        +string departement
+        +enum niveau_requis
+        +int nombre_etudiants_max
+        +enum statut
+        +bigint valide_par_id
+        +date date_validation
+        +bigint annee_universitaire_id
+        +boolean visible
+    }
+
+    class Pfe {
+        +bigint id
+        +string numero_pfe
+        +bigint sujet_id
+        +bigint encadrant_id
+        +bigint annee_universitaire_id
+        +date date_debut
+        +date date_fin_prevue
+        +date date_fin_reelle
+        +enum statut
+        +decimal note_finale
+        +text observations
+        +date date_soutenance
+        +string salle_soutenance
+        +time heure_soutenance
+        +string rapport_file
+        +string presentation_file
+    }
+
+    class DemandeEncadrement {
+        +bigint id
+        +bigint etudiant_id
+        +bigint enseignant_id
+        +bigint sujet_id
+        +string titre_sujet_propose
+        +text description_sujet_propose
+        +text motivation
+        +enum statut
+        +datetime date_reponse
+        +text motif_refus
+        +bigint annee_universitaire_id
+    }
+
+    class GroupeEtudiants {
+        +bigint id
+        +string nom
+        +bigint chef_groupe_id
+        +bigint demande_encadrement_id
+    }
+
+    class MotCle {
+        +bigint id
+        +string mot
+    }
+
+    class Notification {
+        +bigint id
+        +bigint user_id
+        +string type
+        +string titre
+        +text message
+        +json data
+        +boolean lue
+    }
+
+    class JurySoutenance {
+        +bigint id
+        +bigint pfe_id
+        +bigint membre_jury_id
+        +enum role
+        +decimal note_attribuee
+    }
+
+    class HistoriqueEncadrement {
+        +bigint id
+        +bigint enseignant_id
+        +bigint annee_universitaire_id
+        +bigint pfe_id
+        +int nombre_heures
+        +text observations
+    }
+
+    class ImportLog {
+        +bigint id
+        +string type_import
+        +string fichier
+        +int nombre_lignes
+        +int nombre_succes
+        +int nombre_erreurs
+        +json erreurs_details
+        +bigint importe_par
+    }
+
+    %% ===== TABLES PIVOT =====
+
+    class EtudiantsPfe {
+        <<pivot>>
+        +bigint pfe_id
+        +bigint etudiant_id
+        +enum role_dans_groupe
+        +decimal note_individuelle
+        +text appreciation
+    }
+
+    class MembresGroupe {
+        <<pivot>>
+        +bigint groupe_id
+        +bigint etudiant_id
+        +enum statut
+    }
+
+    class SujetMotCle {
+        <<pivot>>
+        +bigint sujet_pfe_id
+        +bigint mot_cle_id
+    }
+
+    %% ===== ÉNUMÉRATIONS =====
+
+    class Role {
+        <<enumeration>>
+        admin
+        coordinateur
+        enseignant
+        etudiant
+    }
+
+    class StatutSujet {
+        <<enumeration>>
+        propose
+        valide
+        archive
+    }
+
+    class StatutPfe {
+        <<enumeration>>
+        propose
+        en_cours
+        en_attente_soutenance
+        termine
+    }
+
+    class StatutDemande {
+        <<enumeration>>
+        en_attente
+        accepte
+        refuse
+    }
+
+    %% ===== RELATIONS =====
+
+    %% User relations
+    User "1" -- "0..*" Filiere : appartient >
+    User "1" -- "0..*" SujetPfe : propose >
+    User "1" -- "0..*" SujetPfe : valide >
+    User "1" -- "0..*" Pfe : encadre >
+    User "1" -- "0..*" DemandeEncadrement : envoie (étudiant) >
+    User "1" -- "0..*" DemandeEncadrement : reçoit (enseignant) >
+    User "1" -- "0..1" GroupeEtudiants : chef de >
+    User "1" -- "0..*" Notification : reçoit >
+    User "1" -- "0..*" JurySoutenance : évalue >
+    User "1" -- "0..*" HistoriqueEncadrement : historique >
+    User "1" -- "0..*" ImportLog : effectue >
+
+    %% Filiere relations
+    Filiere "1" -- "0..*" User : inscrit >
+    Filiere "1" -- "0..*" SujetPfe : concerne >
+
+    %% AnneeUniversitaire relations
+    AnneeUniversitaire "1" -- "0..*" SujetPfe : période >
+    AnneeUniversitaire "1" -- "0..*" Pfe : année >
+    AnneeUniversitaire "1" -- "0..*" DemandeEncadrement : année >
+    AnneeUniversitaire "1" -- "0..*" HistoriqueEncadrement : année >
+
+    %% SujetPfe relations
+    SujetPfe "1" -- "0..*" Pfe : devient >
+    SujetPfe "1" -- "0..*" DemandeEncadrement : sujet >
+
+    %% Pfe relations
+    Pfe "1" -- "0..*" JurySoutenance : soutenance >
+    Pfe "1" -- "0..1" HistoriqueEncadrement : trace >
+
+    %% DemandeEncadrement relations
+    DemandeEncadrement "1" -- "0..1" GroupeEtudiants : groupe >
+
+    %% Many-to-Many via Pivot
+    User "0..*" -- "0..*" Pfe : via EtudiantsPfe
+    User "0..*" -- "0..*" GroupeEtudiants : via MembresGroupe
+    SujetPfe "0..*" -- "0..*" MotCle : via SujetMotCle
+
+    %% Enum relations
+    User ..> Role : utilise
+    SujetPfe ..> StatutSujet : utilise
+    Pfe ..> StatutPfe : utilise
+    DemandeEncadrement ..> StatutDemande : utilise
+
+    note for User "Modèle central gérant tous les utilisateurs:\nadmin, coordinateur, enseignant, étudiant\n\nMatricule auto-généré pour étudiants:\nFormat L20250001 ou M20250001"
+
+    note for Pfe "Projet de Fin d'Études\nCycle: propose → en_cours → en_attente_soutenance → termine"
+
+    note for EtudiantsPfe "Table pivot: 1 à 3 étudiants par PFE\navec rôle (chef/membre) et notes individuelles"
