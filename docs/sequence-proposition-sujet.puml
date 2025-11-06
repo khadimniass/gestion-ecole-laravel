@@ -1,0 +1,80 @@
+@startuml Diagramme Séquence - Proposition de Sujet PFE
+
+title Séquence : Proposition d'un Sujet PFE par un Enseignant
+
+actor "Enseignant" as Enseignant
+participant "SujetController" as Controller
+participant "SujetPfe Model" as Sujet
+participant "Notification Model" as Notif
+participant "User Model" as User
+database "Base de données" as DB
+
+Enseignant -> Controller : Accède à /enseignant/sujets/create
+activate Controller
+
+Controller -> Controller : authorize('create', SujetPfe)
+Controller -> Controller : getFilieres()
+Controller --> Enseignant : Formulaire de création
+deactivate Controller
+
+Enseignant -> Controller : Soumet formulaire\n(titre, description, filière, etc.)
+activate Controller
+
+Controller -> Controller : validate(request)
+note right
+  Champs requis :
+  - titre, description
+  - niveau_requis (licence/master/tous)
+  - nombre_etudiants_max (1-3)
+  - mots_cles (max 4)
+end note
+
+alt Validation échoue
+  Controller --> Enseignant : Erreurs de validation
+else Validation réussit
+
+  Controller -> Controller : DB::beginTransaction()
+
+  Controller -> Sujet : create(data)
+  activate Sujet
+
+  Sujet -> Sujet : Définir statut selon rôle
+  note right
+    Si Coordinateur : statut = 'valide'
+    Sinon : statut = 'propose'
+  end note
+
+  Sujet -> DB : INSERT INTO sujets_pfe
+  DB --> Sujet : Sujet créé (id)
+  Sujet --> Controller : SujetPfe
+  deactivate Sujet
+
+  alt Enseignant (pas Coordinateur)
+    Controller -> User : Chercher coordinateurs\ndu département
+    activate User
+    User -> DB : SELECT * FROM users\nWHERE role='coordinateur'\nAND departement=?
+    DB --> User : Liste coordinateurs
+    User --> Controller : Liste coordinateurs
+    deactivate User
+
+    loop Pour chaque coordinateur
+      Controller -> Notif : create(notification)
+      activate Notif
+      Notif -> DB : INSERT INTO notifications
+      note right
+        Type : 'nouveau_sujet'
+        Titre : 'Nouveau sujet à valider'
+        Message : "Un nouveau sujet a été proposé par [Enseignant]"
+      end note
+      DB --> Notif : Notification créée
+      Notif --> Controller : OK
+      deactivate Notif
+    end
+  end
+
+  Controller -> Controller : DB::commit()
+  Controller --> Enseignant : Redirection vers /sujets/{id}\navec message succès
+  deactivate Controller
+end
+
+@enduml

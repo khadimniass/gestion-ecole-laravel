@@ -1,0 +1,157 @@
+@startuml Diagramme Séquence - Planification et Soutenance PFE
+
+title Séquence : Planification et Déroulement d'une Soutenance
+
+actor "Admin/Coordinateur" as Admin
+actor "Enseignant\n(Encadrant)" as Encadrant
+actor "Membres Jury" as Jury
+actor "Étudiant(s)" as Etudiant
+participant "SoutenanceController" as Controller
+participant "Pfe Model" as Pfe
+participant "JurySoutenance" as JuryModel
+participant "Notification" as Notif
+database "Base de données" as DB
+
+== Phase 1 : Planification de la Soutenance ==
+
+Admin -> Controller : Accède à /admin/soutenances/planifier
+activate Controller
+
+Controller -> Pfe : Chercher PFE prêts pour soutenance
+activate Pfe
+Pfe -> DB : SELECT * FROM pfes\nWHERE statut='en_cours'\nAND rapport_file IS NOT NULL
+DB --> Pfe : Liste PFE prêts
+Pfe --> Controller : Liste PFE
+deactivate Pfe
+
+Controller --> Admin : Liste des PFE à planifier
+deactivate Controller
+
+Admin -> Controller : Soumet planification\n(date, heure, salle, jury)
+activate Controller
+
+Controller -> Controller : validate(request)
+note right
+  - date_soutenance (future)
+  - heure_soutenance
+  - salle_soutenance
+  - membres_jury (min 3)
+end note
+
+Controller -> Controller : DB::beginTransaction()
+
+Controller -> Pfe : update(soutenance_data)
+activate Pfe
+Pfe -> DB : UPDATE pfes SET\ndate_soutenance=?,\nheure_soutenance=?,\nsalle_soutenance=?,\nstatut='en_attente_soutenance'
+DB --> Pfe : OK
+Pfe --> Controller : PFE mis à jour
+deactivate Pfe
+
+loop Pour chaque membre du jury
+  Controller -> JuryModel : create(jury_member)
+  activate JuryModel
+  JuryModel -> DB : INSERT INTO jury_soutenances
+  note right
+    - pfe_id
+    - membre_jury_id
+    - role (president/rapporteur/examinateur)
+  end note
+  DB --> JuryModel : Jury créé
+  JuryModel --> Controller : OK
+  deactivate JuryModel
+
+  Controller -> Notif : Notifier membre jury
+  activate Notif
+  Notif -> DB : INSERT INTO notifications
+  note right
+    Type : 'convocation_jury'
+    Titre : 'Convocation jury de soutenance'
+    Message : "Vous êtes convoqué(e) comme [role]\n
+    Date : [date]\nHeure : [heure]\nSalle : [salle]"
+  end note
+  Notif --> Controller : OK
+  deactivate Notif
+end
+
+Controller -> Notif : Notifier encadrant
+activate Notif
+Notif -> DB : INSERT INTO notifications
+Notif --> Controller : OK
+deactivate Notif
+
+Controller -> Notif : Notifier étudiant(s)
+activate Notif
+Notif -> DB : INSERT INTO notifications
+note right
+  Type : 'soutenance_planifiee'
+  Titre : 'Soutenance planifiée'
+  Message : "Votre soutenance est prévue le [date]\n
+  à [heure] en salle [salle]"
+end note
+Notif --> Controller : OK
+deactivate Notif
+
+Controller -> Controller : DB::commit()
+Controller --> Admin : Message "Soutenance planifiée avec succès"
+deactivate Controller
+
+== Phase 2 : Déroulement de la Soutenance ==
+
+note over Etudiant, Jury
+  Le jour de la soutenance
+end note
+
+Etudiant -> Etudiant : Présentation du PFE
+Jury -> Jury : Questions & évaluation
+
+== Phase 3 : Attribution des Notes ==
+
+Jury -> Controller : Soumet notes individuelles
+activate Controller
+
+loop Pour chaque membre du jury
+  Controller -> JuryModel : update(note_attribuee)
+  activate JuryModel
+  JuryModel -> DB : UPDATE jury_soutenances\nSET note_attribuee=?
+  JuryModel --> Controller : OK
+  deactivate JuryModel
+end
+
+Controller -> Pfe : Calculer note finale
+activate Pfe
+note right
+  note_finale = moyenne pondérée
+  des notes du jury
+end note
+Pfe -> Pfe : calculate_note_finale()
+Pfe --> Controller : note_finale
+deactivate Pfe
+
+Controller -> Pfe : Terminer le PFE
+activate Pfe
+Pfe -> DB : UPDATE pfes SET\nstatut='termine',\nnote_finale=?,\ndate_fin_reelle=NOW()
+DB --> Pfe : OK
+Pfe --> Controller : PFE terminé
+deactivate Pfe
+
+Controller -> Pfe : Attribuer notes individuelles
+activate Pfe
+Pfe -> DB : UPDATE etudiants_pfe\nSET note_individuelle=?,\nappreciation=?
+Pfe --> Controller : OK
+deactivate Pfe
+
+Controller -> Notif : Notifier étudiant(s)
+activate Notif
+Notif -> DB : INSERT INTO notifications
+note right
+  Type : 'note_soutenance'
+  Titre : 'Note de soutenance disponible'
+  Message : "Votre note de soutenance : [note]/20"
+end note
+Notif --> Controller : OK
+deactivate Notif
+
+Controller --> Jury : Message "Notes enregistrées"
+deactivate Controller
+
+@enduml

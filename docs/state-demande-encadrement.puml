@@ -1,0 +1,177 @@
+@startuml Diagramme États-Transitions - Demande d'Encadrement
+
+title États et Transitions d'une Demande d'Encadrement
+
+[*] --> EnAttente : Étudiant soumet\ndemande d'encadrement
+
+state EnAttente {
+  EnAttente : statut = 'en_attente'
+  EnAttente : En attente réponse enseignant
+  EnAttente : Peut être annulée par étudiant
+}
+
+state Accepte {
+  Accepte : statut = 'accepte'
+  Accepte : date_reponse définie
+  Accepte : PFE créé automatiquement
+  Accepte : État final positif
+}
+
+state Refuse {
+  Refuse : statut = 'refuse'
+  Refuse : date_reponse définie
+  Refuse : motif_refus obligatoire
+  Refuse : État final négatif
+}
+
+EnAttente --> Accepte : Enseignant accepte\n[accepter()]
+note on link
+  **Vérifications préalables:**
+  1. Quota encadrements non atteint
+     max_encadrements_simultanes
+  2. Sujet toujours disponible
+  3. Étudiant(s) éligibles
+
+  **Actions automatiques:**
+  - Création Pfe (statut 'propose')
+  - Association étudiant(s)
+  - Désignation chef de groupe
+  - Notification étudiant(s)
+  - Si groupe: acceptation groupe entier
+end note
+
+EnAttente --> Refuse : Enseignant refuse\n[refuser() avec motif]
+note on link
+  **Motif obligatoire:**
+  L'enseignant doit fournir
+  une raison du refus
+
+  **Actions:**
+  - Enregistrement motif
+  - date_reponse = NOW()
+  - Notification étudiant(s)
+  - Étudiant peut resoumettre
+    demande ailleurs
+end note
+
+EnAttente --> [*] : Étudiant annule\n[destroy()]
+note on link
+  **Conditions:**
+  Seulement si statut = 'en_attente'
+
+  **Action:**
+  Suppression de la demande
+  (soft delete possible)
+
+  **Conséquence:**
+  Étudiant peut créer
+  nouvelle demande
+end note
+
+Accepte --> [*]
+Refuse --> [*]
+
+note right of EnAttente
+  **Conditions de création:**
+  1. Étudiant authentifié
+  2. Aucune demande en cours
+     pour l'année universitaire
+  3. Sujet sélectionné (optionnel)
+  4. Enseignant choisi
+
+  **Validations:**
+  - etudiant_id (unique par année)
+  - enseignant_id (requis, actif)
+  - sujet_id (nullable, si valide)
+  - message_motivation (optionnel)
+
+  **Contrainte unicité:**
+  Un étudiant ne peut avoir
+  qu'une seule demande active
+  par année universitaire
+end note
+
+note left of EnAttente
+  **Cas groupe d'étudiants:**
+
+  Si demande de groupe:
+  - Chef crée la demande
+  - Invitation membres via
+    table: groupes_etudiants
+  - Membres acceptent invitation
+  - Statut groupe: 'en_attente'
+
+  Quand encadrant accepte:
+  - PFE créé avec tous membres
+  - Pivot: etudiants_pfe
+  - role_dans_groupe défini
+    (chef/membre)
+end note
+
+note right of Accepte
+  **État terminal positif**
+
+  **Conséquences:**
+  1. Création automatique PFE
+     (via transaction DB)
+
+  2. Table etudiants_pfe:
+     - pfe_id (nouveau)
+     - etudiant_id
+     - role_dans_groupe
+     - note_individuelle (NULL)
+     - appreciation (NULL)
+
+  3. PFE initial:
+     - statut = 'propose'
+     - sujet_id (de la demande)
+     - encadrant_id (enseignant)
+     - annee_universitaire_id
+
+  4. Notifications envoyées:
+     - Étudiant(s): acceptation
+     - Admin: nouveau PFE
+end note
+
+note right of Refuse
+  **État terminal négatif**
+
+  **Motifs fréquents:**
+  - Quota encadrements atteint
+  - Thématique hors spécialité
+  - Niveau étudiant insuffisant
+  - Disponibilité limitée
+
+  **Après refus:**
+  Étudiant peut:
+  1. Soumettre nouvelle demande
+     à autre enseignant
+  2. Choisir autre sujet
+  3. Ajuster message motivation
+
+  **Historique conservé:**
+  Toutes les demandes
+  (acceptées/refusées)
+  tracées pour statistiques
+end note
+
+note bottom
+  **Règles métier importantes:**
+
+  1. **Unicité:** Un étudiant ne peut avoir qu'une demande
+     active (en_attente) par année universitaire
+
+  2. **Quota enseignant:** Vérification du nombre
+     d'encadrements simultanés (max_encadrements_simultanes)
+
+  3. **Cohérence groupe:** Si demande de groupe,
+     tous les étudiants doivent être de la même filière
+
+  4. **Traçabilité:** Toutes les demandes sont conservées
+     avec dates et motifs pour historique et statistiques
+
+  5. **Notifications:** Système de notifications automatique
+     à chaque transition d'état
+end note
+
+@enduml
