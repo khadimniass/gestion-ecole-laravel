@@ -52,63 +52,7 @@ Les images PNG permettent de :
 
 ---
 
-### Méthode 2 : Installation Locale (Recommandé pour Ubuntu/Linux)
-
-**Avantages** : Rapide, automatisé, fonctionne pour tous les diagrammes
-**Inconvénient** : Nécessite installation
-
-#### Étapes :
-
-1. **Installer PlantUML et Graphviz**
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y plantuml graphviz
-   ```
-
-2. **Générer toutes les images automatiquement**
-   ```bash
-   cd /chemin/vers/gestion-ecole-laravel
-   plantuml docs/*.puml -o images/
-   ```
-
-3. **Vérifier les images créées**
-   ```bash
-   ls -lh docs/images/*.png
-   ```
-
-**Résultat attendu** : 9 fichiers PNG créés dans `docs/images/`
-
----
-
-### Méthode 3 : Avec Docker (Multi-plateforme)
-
-**Avantages** : Fonctionne sur Windows/Mac/Linux, pas besoin d'installer Java
-**Inconvénient** : Nécessite Docker
-
-#### Étapes :
-
-1. **Installer Docker Desktop**
-   - Windows/Mac : https://www.docker.com/products/docker-desktop
-   - Linux : `sudo apt-get install docker.io`
-
-2. **Utiliser l'image PlantUML officielle**
-   ```bash
-   cd /chemin/vers/gestion-ecole-laravel
-
-   # Générer toutes les images
-   docker run --rm -v $(pwd)/docs:/data \
-     plantuml/plantuml:latest \
-     -tpng -o /data/images "/data/*.puml"
-   ```
-
-3. **Vérifier les images**
-   ```bash
-   ls -lh docs/images/*.png
-   ```
-
----
-
-### Méthode 4 : Extension VS Code (Interface graphique)
+### Méthode 2 : Extension VS Code (Interface graphique)
 
 **Avantages** : Interface visuelle, prévisualisation en temps réel
 **Inconvénient** : Nécessite VS Code et Java
@@ -281,71 +225,7 @@ plantuml docs/*.puml -o images/ -tsvg
 
 ---
 
-## 🔍 Résolution des Problèmes
-
-### Problème 1 : "PlantUML not found"
-**Solution** :
-```bash
-# Ubuntu/Debian
-sudo apt-get install plantuml
-
-# macOS (Homebrew)
-brew install plantuml
-
-# Windows (Chocolatey)
-choco install plantuml
-```
-
-### Problème 2 : "Graphviz not installed"
-**Solution** :
-```bash
-# Ubuntu/Debian
-sudo apt-get install graphviz
-
-# macOS
-brew install graphviz
-
-# Windows
-choco install graphviz
-```
-
-### Problème 3 : "Java not found"
-**Solution** :
-```bash
-# Ubuntu/Debian
-sudo apt-get install default-jre
-
-# macOS
-brew install openjdk
-
-# Windows
-# Télécharger depuis https://adoptium.net/
-```
-
-### Problème 4 : "Diagramme trop grand"
-**Solutions** :
-1. Générer en SVG (vectoriel, pas de limite) :
-   ```bash
-   plantuml -tsvg docs/usecase-diagram.puml
-   ```
-
-2. Augmenter la taille maximale :
-   ```bash
-   PLANTUML_LIMIT_SIZE=16384 plantuml docs/*.puml
-   ```
-
-3. Diviser le diagramme en plusieurs parties plus petites
-
-### Problème 5 : "Police de caractères manquante"
-**Solution** :
-```bash
-# Installer les polices
-sudo apt-get install fonts-dejavu fonts-liberation
-```
-
----
-
-## 📐 Qualité et Taille des Images
+##  Qualité et Taille des Images
 
 ### Paramètres de qualité
 
@@ -370,49 +250,6 @@ PLANTUML_LIMIT_SIZE=16384 plantuml docs/*.puml
 
 ---
 
-## 🚀 Génération Automatique via Git Hook (Optionnel)
-
-Pour regénérer automatiquement les images à chaque commit :
-
-1. **Créer le hook pre-commit**
-   ```bash
-   nano .git/hooks/pre-commit
-   ```
-
-2. **Ajouter le script**
-   ```bash
-   #!/bin/bash
-   # Regénérer les images UML avant chaque commit
-
-   if command -v plantuml &> /dev/null; then
-       echo "Régénération des diagrammes UML..."
-       plantuml docs/*.puml -o images/ -tpng -quiet
-       git add docs/images/*.png
-   fi
-   ```
-
-3. **Rendre exécutable**
-   ```bash
-   chmod +x .git/hooks/pre-commit
-   ```
-
----
-
-## ✅ Vérification
-
-Une fois les images générées, vérifiez :
-
-```bash
-# Lister les images
-ls -lh docs/images/*.png
-
-# Compter les images (devrait afficher 9)
-ls docs/images/*.png | wc -l
-
-# Vérifier qu'aucune image n'est vide
-find docs/images/ -name "*.png" -size 0 -print
-```
-
 **Résultat attendu** : 9 fichiers PNG de taille > 0
 
 ---
@@ -424,19 +261,6 @@ find docs/images/ -name "*.png" -size 0 -print
 - **Mermaid Live (alternative)** : https://mermaid.live/
 - **Documentation PlantUML** : https://plantuml.com/guide
 - **Extension VS Code** : https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml
-
----
-
-## 🆘 Support
-
-Si vous rencontrez des problèmes :
-
-1. Vérifiez que Java 8+ est installé : `java -version`
-2. Vérifiez que Graphviz est installé : `dot -V`
-3. Essayez la méthode en ligne (PlantText) pour tester
-4. Consultez les logs d'erreur de PlantUML
-
----
 
 **Date de création** : 2025-11-06
 **Version** : 1.0
