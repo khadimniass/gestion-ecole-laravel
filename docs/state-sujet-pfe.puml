@@ -1,0 +1,101 @@
+@startuml Diagramme États-Transitions - Sujet PFE
+
+title États et Transitions d'un Sujet PFE
+
+[*] --> Propose : Enseignant propose\nun nouveau sujet
+
+state Propose {
+  Propose : statut = 'propose'
+  Propose : visible = false
+  Propose : En attente de validation
+}
+
+state Valide {
+  Valide : statut = 'valide'
+  Valide : visible = true
+  Valide : date_validation définie
+  Valide : valide_par_id défini
+}
+
+state Archive {
+  Archive : statut = 'archive'
+  Archive : visible = false
+  Archive : Sujet rejeté ou supprimé
+}
+
+state Attribue {
+  Attribue : Un ou plusieurs PFE\nont été créés à partir\nde ce sujet
+}
+
+Propose --> Valide : Coordinateur valide\n[authorize('valider')]
+note on link
+  Action: valider()
+  - Mise à jour statut
+  - Enregistrement validateur
+  - Notification enseignant
+end note
+
+Propose --> Archive : Coordinateur rejette\n[avec motif obligatoire]
+note on link
+  Action: rejeter()
+  - Mise à jour statut
+  - visible = false
+  - Notification avec motif
+end note
+
+Valide --> Attribue : Demande acceptée\nPFE créé
+note on link
+  Déclencheur:
+  DemandeEncadrement acceptée
+  → Pfe::create()
+end note
+
+Valide --> Archive : Admin supprime\n[si aucun PFE associé]
+note on link
+  Action: destroy()
+  Condition: !$sujet->pfes()->exists()
+end note
+
+Archive --> [*]
+
+note right of Propose
+  **Conditions de création:**
+  - Année universitaire active
+  - Enseignant authentifié
+  - Validation champs:
+    * titre (requis, max 255)
+    * description (requis)
+    * niveau_requis (licence/master/tous)
+    * nombre_etudiants_max (1-3)
+    * mots_cles (max 4)
+
+  **Auto-validation:**
+  Si propose_par est coordinateur
+  → statut = 'valide' directement
+end note
+
+note right of Valide
+  **Visibilité:**
+  Seulement les sujets validés
+  sont visibles aux étudiants
+  via scope: disponibles()
+
+  **Filtres étudiants:**
+  - Par niveau (L/M)
+  - Par département
+  - Par filière
+  - Par mots-clés
+end note
+
+note right of Attribue
+  **État final stable:**
+  Le sujet reste 'valide' mais
+  n'est plus disponible pour
+  de nouvelles demandes
+
+  **Contrainte:**
+  Impossible de supprimer
+  un sujet avec PFE associés
+end note
+
+@enduml

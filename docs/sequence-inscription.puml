@@ -1,0 +1,70 @@
+@startuml Diagramme Séquence - Inscription Utilisateur
+
+title Séquence : Inscription d'un Utilisateur
+
+actor "Utilisateur" as User
+participant "Page Inscription" as View
+participant "AuthController" as Auth
+participant "User Model" as UserModel
+participant "Filiere Model" as Filiere
+database "Base de données" as DB
+
+User -> View : Accède à /register
+activate View
+View -> Filiere : getFilieres()
+activate Filiere
+Filiere -> DB : SELECT * FROM filieres WHERE active=1
+DB --> Filiere : Liste des filières
+Filiere --> View : Liste des filières
+deactivate Filiere
+
+View --> User : Affiche formulaire\n(avec filières)
+deactivate View
+
+User -> View : Soumet formulaire\n(nom, email, rôle, etc.)
+activate View
+
+View -> Auth : register(request)
+activate Auth
+
+Auth -> Auth : validate(request)
+note right
+  Validation selon le rôle :
+  - Étudiant : filiere_id, niveau_etude
+  - Enseignant : departement, specialite
+end note
+
+alt Validation échoue
+  Auth --> View : Erreurs de validation
+  View --> User : Affiche erreurs
+else Validation réussit
+
+  alt Rôle = Étudiant
+    Auth -> Auth : genererMatricule(niveau_etude)
+    note right
+      Format : L20250001 (Licence)
+      ou M20250001 (Master)
+    end note
+  end
+
+  Auth -> UserModel : create(validated_data)
+  activate UserModel
+  UserModel -> DB : INSERT INTO users
+  DB --> UserModel : User créé (id)
+  UserModel --> Auth : User
+  deactivate UserModel
+
+  Auth -> Auth : login(user)
+  note right
+    Authentification automatique
+    après inscription
+  end note
+
+  Auth --> View : Redirection vers dashboard
+  deactivate Auth
+
+  View --> User : Redirection\n(/etudiant/dashboard ou /enseignant/dashboard)
+  deactivate View
+end
+
+@enduml

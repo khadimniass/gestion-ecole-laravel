@@ -1,0 +1,157 @@
+@startuml Diagramme Séquence - Demande d'Encadrement
+
+title Séquence : Demande d'Encadrement d'un Étudiant
+
+actor "Étudiant" as Etudiant
+actor "Enseignant" as Enseignant
+participant "DemandeController" as Controller
+participant "DemandeEncadrement" as Demande
+participant "Pfe Model" as Pfe
+participant "Notification" as Notif
+database "Base de données" as DB
+
+== Phase 1 : Création de la Demande ==
+
+Etudiant -> Controller : Accède à /etudiant/demandes/create
+activate Controller
+
+Controller -> Controller : Vérifier qu'aucune demande\nn'existe pour l'année en cours
+
+alt Demande existe déjà
+  Controller --> Etudiant : Redirection avec message\n"Vous avez déjà une demande"
+else Aucune demande
+
+  Controller -> Controller : Vérifier que l'étudiant\nn'a pas de PFE en cours
+
+  alt PFE en cours existe
+    Controller --> Etudiant : Erreur "Vous avez déjà un PFE en cours"
+  else Aucun PFE en cours
+
+    Controller -> Controller : Charger sujets disponibles\net enseignants
+    Controller --> Etudiant : Formulaire de demande
+    deactivate Controller
+
+    Etudiant -> Controller : Soumet demande\n(enseignant, sujet, motivation)
+    activate Controller
+
+    Controller -> Controller : validate(request)
+    note right
+      - enseignant_id requis
+      - sujet_id OU (titre + description)
+      - motivation requise
+    end note
+
+    Controller -> Demande : create(data)
+    activate Demande
+    Demande -> DB : INSERT INTO demandes_encadrement
+    note right
+      statut = 'en_attente'
+      annee_universitaire_id = année active
+    end note
+    DB --> Demande : Demande créée
+    Demande --> Controller : DemandeEncadrement
+    deactivate Demande
+
+    Controller -> Notif : Notifier enseignant
+    activate Notif
+    Notif -> DB : INSERT INTO notifications
+    note right
+      Type : 'nouvelle_demande'
+      Titre : 'Nouvelle demande d'encadrement'
+      Message : "L'étudiant [Nom] souhaite\nque vous encadriez son PFE"
+    end note
+    Notif --> Controller : OK
+    deactivate Notif
+
+    Controller --> Etudiant : Redirection avec succès
+    deactivate Controller
+  end
+end
+
+== Phase 2 : Traitement par l'Enseignant ==
+
+Enseignant -> Controller : Consulte /enseignant/demandes
+activate Controller
+Controller -> DB : SELECT demandes\nWHERE enseignant_id=? AND statut='en_attente'
+DB --> Controller : Liste demandes
+Controller --> Enseignant : Affiche demandes en attente
+deactivate Controller
+
+Enseignant -> Controller : Clique sur une demande
+activate Controller
+Controller --> Enseignant : Détails de la demande
+deactivate Controller
+
+alt Enseignant ACCEPTE
+  Enseignant -> Controller : accepter(demande)
+  activate Controller
+
+  Controller -> Controller : DB::beginTransaction()
+
+  Controller -> Demande : update(statut='accepte')
+  activate Demande
+  Demande -> DB : UPDATE demandes_encadrement\nSET statut='accepte', date_reponse=NOW()
+  Demande --> Controller : OK
+  deactivate Demande
+
+  Controller -> Pfe : create(pfe)
+  activate Pfe
+  note right
+    Création du PFE :
+    - sujet_id
+    - encadrant_id
+    - statut = 'en_cours'
+    - date_debut = TODAY
+  end note
+  Pfe -> DB : INSERT INTO pfes
+  DB --> Pfe : PFE créé avec numero_pfe
+  Pfe --> Controller : Pfe
+  deactivate Pfe
+
+  Controller -> Pfe : Attacher étudiant(s)
+  activate Pfe
+  Pfe -> DB : INSERT INTO etudiants_pfe\n(pfe_id, etudiant_id, role='chef')
+  Pfe --> Controller : OK
+  deactivate Pfe
+
+  Controller -> Notif : Notifier étudiant
+  activate Notif
+  Notif -> DB : INSERT INTO notifications
+  note right
+    Type : 'demande_acceptee'
+    Titre : 'Demande acceptée'
+    Message : "Votre demande d'encadrement\na été acceptée"
+  end note
+  Notif --> Controller : OK
+  deactivate Notif
+
+  Controller -> Controller : DB::commit()
+  Controller --> Enseignant : Message "Demande acceptée et PFE créé"
+  deactivate Controller
+
+else Enseignant REFUSE
+  Enseignant -> Controller : refuser(demande, motif)
+  activate Controller
+
+  Controller -> Demande : update(statut='refuse', motif)
+  activate Demande
+  Demande -> DB : UPDATE demandes_encadrement\nSET statut='refuse',\nmotif_refus=?, date_reponse=NOW()
+  Demande --> Controller : OK
+  deactivate Demande
+
+  Controller -> Notif : Notifier étudiant
+  activate Notif
+  Notif -> DB : INSERT INTO notifications
+  note right
+    Type : 'demande_refusee'
+    Titre : 'Demande refusée'
+    Message : "Votre demande a été refusée.\nMotif : [motif]"
+  end note
+  Notif --> Controller : OK
+  deactivate Notif
+
+  Controller --> Enseignant : Message "Demande refusée"
+  deactivate Controller
+end
+
+@enduml

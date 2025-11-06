@@ -1,0 +1,180 @@
+@startuml Diagramme États-Transitions - PFE
+
+title États et Transitions d'un Projet de Fin d'Études (PFE)
+
+[*] --> Propose : DemandeEncadrement\nacceptée par enseignant
+
+state Propose {
+  Propose : statut = 'propose'
+  Propose : PFE nouvellement créé
+  Propose : En attente de démarrage
+}
+
+state EnCours {
+  EnCours : statut = 'en_cours'
+  EnCours : date_debut définie
+  EnCours : Travail en cours
+  EnCours : Suivi régulier encadrant
+}
+
+state EnAttenteSoutenance {
+  EnAttenteSoutenance : statut = 'en_attente_soutenance'
+  EnAttenteSoutenance : rapport_file uploadé
+  EnAttenteSoutenance : date_soutenance planifiée
+  EnAttenteSoutenance : heure_soutenance définie
+  EnAttenteSoutenance : salle_soutenance attribuée
+  EnAttenteSoutenance : Jury constitué (min 3)
+}
+
+state Termine {
+  Termine : statut = 'termine'
+  Termine : date_fin_reelle définie
+  Termine : note_finale calculée
+  Termine : Notes individuelles attribuées
+  Termine : Appréciations saisies
+}
+
+state Abandonne {
+  Abandonne : statut = 'abandonne'
+  Abandonne : PFE interrompu
+  Abandonne : date_fin_reelle = date abandon
+}
+
+Propose --> EnCours : Admin démarre le PFE\n[demarrerPfe()]
+note on link
+  Action manuelle admin:
+  - Mise à jour statut
+  - date_debut = date actuelle
+  - Notification étudiants + encadrant
+end note
+
+EnCours --> EnAttenteSoutenance : Admin planifie soutenance\n[après upload rapport]
+note on link
+  Conditions préalables:
+  - rapport_file IS NOT NULL
+  - Étudiant a uploadé rapport PDF
+
+  Action: planifierSoutenance()
+  - Définir date/heure/salle
+  - Constituer jury (3+ membres)
+  - Assigner rôles jury:
+    * président
+    * rapporteur
+    * examinateur(s)
+  - Notifier tous les acteurs
+end note
+
+EnCours --> Abandonne : PFE abandonné\n[raison obligatoire]
+note on link
+  Causes possibles:
+  - Étudiant abandonne
+  - Problèmes insurmontables
+  - Délais dépassés
+
+  Action: abandonner()
+  - statut = 'abandonne'
+  - date_fin_reelle = NOW()
+end note
+
+EnAttenteSoutenance --> Termine : Soutenance effectuée\nNotes attribuées
+note on link
+  Déroulement:
+  1. Présentation étudiants
+  2. Questions jury
+  3. Délibération
+  4. Attribution notes individuelles
+
+  Action: terminerPfe()
+  - Chaque juré saisit sa note
+  - Calcul note_finale (moyenne)
+  - Attribution notes individuelles
+  - Saisie appréciations
+  - date_fin_reelle = NOW()
+  - Notification étudiants
+end note
+
+EnAttenteSoutenance --> EnCours : Soutenance reportée\n[problème organisationnel]
+note on link
+  Cas exceptionnels:
+  - Annulation soutenance
+  - Report nécessaire
+
+  Action: reporterSoutenance()
+  - Retour statut 'en_cours'
+  - Replanification ultérieure
+end note
+
+Termine --> [*]
+Abandonne --> [*]
+
+note right of Propose
+  **Création automatique:**
+  Quand DemandeEncadrement
+  acceptée par enseignant
+
+  **Données initiales:**
+  - sujet_id (demande)
+  - encadrant_id (enseignant)
+  - annee_universitaire_id
+  - etudiants liés via pivot
+  - role_dans_groupe (chef/membre)
+end note
+
+note right of EnCours
+  **Durée typique:**
+  Plusieurs mois de travail
+
+  **Actions possibles:**
+  - Upload documents intermédiaires
+  - Suivi avancement
+  - Réunions encadrant
+  - Upload rapport final
+
+  **Contrainte upload:**
+  rapport_file requis pour
+  passer à soutenance
+end note
+
+note right of EnAttenteSoutenance
+  **Composition jury:**
+  Minimum 3 membres avec rôles:
+  - 1 président (senior)
+  - 1 rapporteur (évalue détails)
+  - 1+ examinateurs
+
+  **Notifications:**
+  - Étudiants (convocation)
+  - Encadrant (info)
+  - Jury (convocation détaillée)
+
+  **Table:** jury_soutenances
+  (pfe_id, membre_jury_id, role)
+end note
+
+note right of Termine
+  **Calcul note finale:**
+  Moyenne pondérée des notes
+  attribuées par chaque membre jury
+
+  **Notes individuelles:**
+  Si groupe de 2/3 étudiants,
+  chaque membre peut avoir
+  note différente selon
+  contribution individuelle
+
+  **Archivage:**
+  État final stable
+  PFE consultable en historique
+end note
+
+note right of Abandonne
+  **Cas rares:**
+  État terminal négatif
+
+  **Conséquences:**
+  - Étudiant sans validation
+  - Doit refaire PFE
+  - année suivante
+end note
+
+@enduml
