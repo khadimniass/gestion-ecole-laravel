@@ -1,0 +1,269 @@
+@startuml Diagramme de Cas d'Utilisation - Gestion PFE
+
+title Diagramme de Cas d'Utilisation\nSystème de Gestion des Projets de Fin d'Études
+
+left to right direction
+
+' Définition des acteurs
+actor "Étudiant" as Etudiant
+actor "Enseignant" as Enseignant
+actor "Coordinateur" as Coordinateur
+actor "Administrateur" as Admin
+actor "Membre de Jury" as Jury
+
+' Héritage : Coordinateur est un Enseignant
+Coordinateur --|> Enseignant
+
+' Systèmes externes
+actor "Système de\nNotifications" as NotifSystem #LightGray
+
+' Package : Gestion des comptes
+package "Gestion des Comptes" {
+  usecase (S'inscrire) as UC01
+  usecase (Se connecter) as UC02
+  usecase (Modifier profil) as UC03
+  usecase (Réinitialiser mot de passe) as UC04
+  usecase (Se déconnecter) as UC05
+}
+
+' Package : Gestion des Sujets PFE
+package "Gestion des Sujets PFE" {
+  usecase (Proposer sujet PFE) as UC10
+  usecase (Modifier sujet) as UC11
+  usecase (Supprimer sujet) as UC12
+  usecase (Consulter sujets disponibles) as UC13
+  usecase (Rechercher sujets) as UC14
+  usecase (Valider sujet) as UC15
+  usecase (Rejeter sujet) as UC16
+  usecase (Filtrer par niveau/département) as UC17
+}
+
+' Package : Gestion des Demandes d'Encadrement
+package "Gestion des Demandes" {
+  usecase (Créer demande d'encadrement) as UC20
+  usecase (Consulter mes demandes) as UC21
+  usecase (Annuler demande) as UC22
+  usecase (Consulter demandes reçues) as UC23
+  usecase (Accepter demande) as UC24
+  usecase (Refuser demande) as UC25
+  usecase (Vérifier quota encadrements) as UC26
+}
+
+' Package : Gestion des PFE
+package "Gestion des PFE" {
+  usecase (Démarrer PFE) as UC30
+  usecase (Suivre avancement PFE) as UC31
+  usecase (Uploader rapport) as UC32
+  usecase (Consulter mon PFE) as UC33
+  usecase (Consulter PFE encadrés) as UC34
+  usecase (Abandonner PFE) as UC35
+  usecase (Télécharger rapport) as UC36
+}
+
+' Package : Gestion des Groupes
+package "Gestion des Groupes" {
+  usecase (Créer groupe d'étudiants) as UC40
+  usecase (Inviter membres groupe) as UC41
+  usecase (Accepter invitation groupe) as UC42
+  usecase (Quitter groupe) as UC43
+  usecase (Définir chef de groupe) as UC44
+}
+
+' Package : Gestion des Soutenances
+package "Gestion des Soutenances" {
+  usecase (Planifier soutenance) as UC50
+  usecase (Modifier soutenance) as UC51
+  usecase (Constituer jury) as UC52
+  usecase (Assigner rôles jury) as UC53
+  usecase (Consulter soutenances) as UC54
+  usecase (Attribuer notes) as UC55
+  usecase (Saisir appréciations) as UC56
+  usecase (Calculer note finale) as UC57
+  usecase (Consulter ma soutenance) as UC58
+}
+
+' Package : Gestion Administrative
+package "Gestion Administrative" {
+  usecase (Gérer utilisateurs) as UC60
+  usecase (Créer utilisateur) as UC61
+  usecase (Modifier utilisateur) as UC62
+  usecase (Supprimer utilisateur) as UC63
+  usecase (Gérer filières) as UC70
+  usecase (Importer utilisateurs CSV) as UC71
+  usecase (Exporter données) as UC72
+  usecase (Gérer années universitaires) as UC73
+  usecase (Consulter tableau de bord) as UC74
+  usecase (Consulter statistiques) as UC75
+}
+
+' Package : Système de Notifications
+package "Notifications" {
+  usecase (Envoyer notification) as UC80
+  usecase (Consulter notifications) as UC81
+  usecase (Marquer comme lue) as UC82
+}
+
+' Relations ÉTUDIANT
+Etudiant --> UC01 : s'inscrit
+Etudiant --> UC02 : se connecte
+Etudiant --> UC03 : modifie
+Etudiant --> UC05 : se déconnecte
+Etudiant --> UC13 : consulte
+Etudiant --> UC14 : recherche
+Etudiant --> UC17 : filtre
+Etudiant --> UC20 : crée
+Etudiant --> UC21 : consulte
+Etudiant --> UC22 : annule
+Etudiant --> UC32 : upload
+Etudiant --> UC33 : consulte
+Etudiant --> UC40 : crée
+Etudiant --> UC41 : invite
+Etudiant --> UC42 : accepte
+Etudiant --> UC43 : quitte
+Etudiant --> UC58 : consulte
+Etudiant --> UC81 : consulte
+Etudiant --> UC82 : marque
+
+' Relations ENSEIGNANT
+Enseignant --> UC01 : s'inscrit
+Enseignant --> UC02 : se connecte
+Enseignant --> UC03 : modifie
+Enseignant --> UC05 : se déconnecte
+Enseignant --> UC10 : propose
+Enseignant --> UC11 : modifie
+Enseignant --> UC12 : supprime
+Enseignant --> UC23 : consulte
+Enseignant --> UC24 : accepte
+Enseignant --> UC25 : refuse
+Enseignant --> UC34 : consulte
+Enseignant --> UC31 : suit
+Enseignant --> UC36 : télécharge
+Enseignant --> UC81 : consulte
+Enseignant --> UC82 : marque
+
+' Relations COORDINATEUR (en plus d'Enseignant)
+Coordinateur --> UC15 : valide
+Coordinateur --> UC16 : rejette
+Coordinateur --> UC70 : gère
+Coordinateur --> UC72 : exporte
+Coordinateur --> UC75 : consulte
+
+' Relations ADMINISTRATEUR
+Admin --> UC02 : se connecte
+Admin --> UC60 : gère
+Admin --> UC61 : crée
+Admin --> UC62 : modifie
+Admin --> UC63 : supprime
+Admin --> UC70 : gère
+Admin --> UC71 : importe
+Admin --> UC72 : exporte
+Admin --> UC73 : gère
+Admin --> UC74 : consulte
+Admin --> UC75 : consulte
+Admin --> UC30 : démarre
+Admin --> UC35 : abandonne
+Admin --> UC50 : planifie
+Admin --> UC51 : modifie
+Admin --> UC52 : constitue
+Admin --> UC53 : assigne
+Admin --> UC54 : consulte
+
+' Relations MEMBRE DE JURY
+Jury --> UC02 : se connecte
+Jury --> UC54 : consulte
+Jury --> UC55 : attribue
+Jury --> UC56 : saisit
+Jury --> UC36 : télécharge
+
+' Relations include (dépendances obligatoires)
+UC20 ..> UC02 : <<include>>
+UC10 ..> UC02 : <<include>>
+UC24 ..> UC26 : <<include>>
+UC50 ..> UC52 : <<include>>
+UC52 ..> UC53 : <<include>>
+UC55 ..> UC57 : <<include>>
+UC71 ..> UC61 : <<include>>
+
+' Relations extend (extensions optionnelles)
+UC13 <.. UC17 : <<extend>>
+UC13 <.. UC14 : <<extend>>
+UC20 <.. UC40 : <<extend>>
+UC50 <.. UC51 : <<extend>>
+UC24 <.. UC30 : <<extend>>
+
+' Relations avec système de notifications
+UC24 --> UC80 : déclenche
+UC25 --> UC80 : déclenche
+UC15 --> UC80 : déclenche
+UC16 --> UC80 : déclenche
+UC50 --> UC80 : déclenche
+UC55 --> UC80 : déclenche
+NotifSystem ..> UC80 : gère
+
+' Notes explicatives
+note right of Etudiant
+  **Étudiant**
+  - Inscrit en L1-L3 ou M1-M2
+  - Matricule auto-généré
+  - Appartient à une filière
+  - 1 demande active max/an
+  - Peut former groupe (1-3)
+end note
+
+note right of Enseignant
+  **Enseignant**
+  - Appartient à un département
+  - Spécialité définie
+  - Quota encadrements max
+  - Propose et encadre PFE
+  - Peut être membre jury
+end note
+
+note right of Coordinateur
+  **Coordinateur**
+  - Hérite droits Enseignant
+  - Valide sujets département
+  - Gère filières département
+  - Consulte statistiques
+  - Exporte données
+end note
+
+note right of Admin
+  **Administrateur**
+  - Accès complet système
+  - Gère utilisateurs
+  - Planifie soutenances
+  - Importe données CSV
+  - Tableau de bord global
+end note
+
+note left of UC26
+  Vérification automatique
+  du quota max_encadrements
+  _simultanes avant acceptation
+end note
+
+note left of UC57
+  Calcul automatique :
+  moyenne pondérée
+  des notes jury
+end note
+
+note bottom of UC80
+  **Types de notifications:**
+  - Demande créée/acceptée/refusée
+  - Sujet validé/rejeté
+  - Soutenance planifiée
+  - Notes attribuées
+  - Rappels échéances
+end note
+
+note top of UC71
+  **Format CSV:**
+  - Étudiants : nom, email, matricule,
+    filière, niveau
+  - Enseignants : nom, email,
+    département, spécialité
+end note
+
+@enduml

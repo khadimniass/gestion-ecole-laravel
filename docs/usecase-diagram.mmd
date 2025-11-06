@@ -1,0 +1,160 @@
+graph TB
+    %% Acteurs
+    Etudiant[👤 Étudiant]
+    Enseignant[👨‍🏫 Enseignant]
+    Coordinateur[👨‍💼 Coordinateur]
+    Admin[👨‍💻 Administrateur]
+    Jury[⚖️ Membre de Jury]
+
+    %% Gestion des comptes
+    subgraph Comptes[Gestion des Comptes]
+        UC01[S'inscrire]
+        UC02[Se connecter]
+        UC03[Modifier profil]
+        UC05[Se déconnecter]
+    end
+
+    %% Gestion des sujets
+    subgraph Sujets[Gestion des Sujets PFE]
+        UC10[Proposer sujet]
+        UC11[Modifier sujet]
+        UC12[Supprimer sujet]
+        UC13[Consulter sujets disponibles]
+        UC14[Rechercher sujets]
+        UC15[Valider sujet]
+        UC16[Rejeter sujet]
+    end
+
+    %% Gestion des demandes
+    subgraph Demandes[Gestion des Demandes]
+        UC20[Créer demande d'encadrement]
+        UC21[Consulter mes demandes]
+        UC22[Annuler demande]
+        UC23[Consulter demandes reçues]
+        UC24[Accepter demande]
+        UC25[Refuser demande]
+    end
+
+    %% Gestion des PFE
+    subgraph PFE[Gestion des PFE]
+        UC30[Démarrer PFE]
+        UC31[Suivre avancement]
+        UC32[Uploader rapport]
+        UC33[Consulter mon PFE]
+        UC34[Consulter PFE encadrés]
+        UC36[Télécharger rapport]
+    end
+
+    %% Gestion des groupes
+    subgraph Groupes[Gestion des Groupes]
+        UC40[Créer groupe]
+        UC41[Inviter membres]
+        UC42[Accepter invitation]
+    end
+
+    %% Gestion des soutenances
+    subgraph Soutenances[Gestion des Soutenances]
+        UC50[Planifier soutenance]
+        UC52[Constituer jury]
+        UC54[Consulter soutenances]
+        UC55[Attribuer notes]
+        UC56[Saisir appréciations]
+        UC58[Consulter ma soutenance]
+    end
+
+    %% Gestion administrative
+    subgraph Administration[Gestion Administrative]
+        UC60[Gérer utilisateurs]
+        UC70[Gérer filières]
+        UC71[Importer CSV]
+        UC72[Exporter données]
+        UC74[Tableau de bord]
+        UC75[Statistiques]
+    end
+
+    %% Notifications
+    subgraph Notifications[Notifications]
+        UC81[Consulter notifications]
+        UC82[Marquer comme lue]
+    end
+
+    %% Relations ÉTUDIANT
+    Etudiant --> UC01
+    Etudiant --> UC02
+    Etudiant --> UC03
+    Etudiant --> UC05
+    Etudiant --> UC13
+    Etudiant --> UC14
+    Etudiant --> UC20
+    Etudiant --> UC21
+    Etudiant --> UC22
+    Etudiant --> UC32
+    Etudiant --> UC33
+    Etudiant --> UC40
+    Etudiant --> UC41
+    Etudiant --> UC42
+    Etudiant --> UC58
+    Etudiant --> UC81
+    Etudiant --> UC82
+
+    %% Relations ENSEIGNANT
+    Enseignant --> UC01
+    Enseignant --> UC02
+    Enseignant --> UC03
+    Enseignant --> UC05
+    Enseignant --> UC10
+    Enseignant --> UC11
+    Enseignant --> UC12
+    Enseignant --> UC23
+    Enseignant --> UC24
+    Enseignant --> UC25
+    Enseignant --> UC31
+    Enseignant --> UC34
+    Enseignant --> UC36
+    Enseignant --> UC81
+    Enseignant --> UC82
+
+    %% Relations COORDINATEUR
+    Coordinateur --> UC02
+    Coordinateur --> UC15
+    Coordinateur --> UC16
+    Coordinateur --> UC70
+    Coordinateur --> UC72
+    Coordinateur --> UC75
+
+    %% Relations ADMINISTRATEUR
+    Admin --> UC02
+    Admin --> UC30
+    Admin --> UC50
+    Admin --> UC52
+    Admin --> UC54
+    Admin --> UC60
+    Admin --> UC70
+    Admin --> UC71
+    Admin --> UC72
+    Admin --> UC74
+    Admin --> UC75
+
+    %% Relations JURY
+    Jury --> UC02
+    Jury --> UC54
+    Jury --> UC55
+    Jury --> UC56
+    Jury --> UC36
+
+    %% Style des acteurs
+    style Etudiant fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style Enseignant fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style Coordinateur fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style Admin fill:#ffebee,stroke:#b71c1c,stroke-width:2px
+    style Jury fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    %% Style des packages
+    style Comptes fill:#e3f2fd,stroke:#1976d2
+    style Sujets fill:#f1f8e9,stroke:#689f38
+    style Demandes fill:#fff9c4,stroke:#f57c00
+    style PFE fill:#fce4ec,stroke:#c2185b
+    style Groupes fill:#e0f2f1,stroke:#00695c
+    style Soutenances fill:#ede7f6,stroke:#512da8
+    style Administration fill:#ffebee,stroke:#d32f2f
+    style Notifications fill:#e8eaf6,stroke:#303f9f
