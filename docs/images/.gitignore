@@ -1,0 +1,9 @@
+# Ignorer les images PNG générées (peuvent être volumineuses)
+# Pour commiter les images, supprimez ce fichier .gitignore
+
+*.png
+*.svg
+*.pdf
+
+# Garder le README
+!README.md
