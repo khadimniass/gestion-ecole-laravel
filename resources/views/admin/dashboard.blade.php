@@ -268,11 +268,14 @@
                         <a href="{{ route('admin.import.form') }}" class="btn btn-success">
                             <i class="fas fa-file-import"></i> Importer des utilisateurs
                         </a>
-                        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                            <i class="fas fa-user-plus"></i> Créer un utilisateur
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Utilisateurs
                         </a>
-                        <a href="{{ route('admin.filieres.create') }}" class="btn btn-info">
-                            <i class="fas fa-graduation-cap"></i> Créer une filière
+                        <a href="{{ route('admin.filieres.index') }}" class="btn btn-info">
+                            <i class="fas fa-graduation-cap"></i> Filières
+                        </a>
+                        <a href="#" class="btn btn-info">
+                            <i class="fas fa"></i> Départements
                         </a>
                         <a href="{{ route('admin.sujets.validation') }}" class="btn btn-warning">
                             <i class="fas fa-check"></i> Valider des sujets
