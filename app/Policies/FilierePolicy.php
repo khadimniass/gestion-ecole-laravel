@@ -31,7 +31,7 @@ class FilierePolicy
      */
     public function create(User $user)
     {
-        return $user->estAdmin();
+        return $user->estAdmin() || $user->estCoordinateur();
     }
 
     /**
@@ -39,7 +39,7 @@ class FilierePolicy
      */
     public function update(User $user, Filiere $filiere)
     {
-        return $user->estAdmin();
+        return $user->estAdmin() || $user->estCoordinateur();
     }
 
     /**

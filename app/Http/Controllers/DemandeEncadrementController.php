@@ -63,8 +63,10 @@ class DemandeEncadrementController extends Controller
             ->where('departement', Auth::user()->filiere->departement)
             ->get();
 
+        // Filtrer les sujets selon le niveau de l'étudiant
+        $niveauEtudiant = Auth::user()->niveau_etude; // 'licence' ou 'master'
         $sujets = SujetPfe::disponibles()
-            ->parNiveau(substr(Auth::user()->niveau_etude, 0, 1) === 'L' ? 'licence' : 'master')
+            ->parNiveau($niveauEtudiant)
             ->get();
 
         return view('demandes.etudiant.create', compact('enseignants', 'sujets'));

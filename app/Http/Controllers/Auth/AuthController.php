@@ -64,20 +64,20 @@ class AuthController extends Controller
             'departement' => ['nullable', 'required_if:role,enseignant', 'string'],
             'specialite' => ['nullable', 'string', 'max:100'],
             'filiere_id' => ['nullable', 'required_if:role,etudiant', 'exists:filieres,id'],
-            'niveau_etude' => ['nullable', 'required_if:role,etudiant', 'in:L1,L2,L3,M1,M2'],
+            'niveau_etude' => ['nullable', 'required_if:role,etudiant', 'in:licence,master'],
+            'matricule' => ['nullable', 'required_if:role,etudiant', 'string', 'regex:/^C\d{5}$/', 'unique:users,matricule'],
+        ], [
+            'matricule.required_if' => 'Le matricule est obligatoire pour les étudiants.',
+            'matricule.regex' => 'Le matricule doit être au format C suivi de 5 chiffres (ex: C98363).',
+            'matricule.unique' => 'Ce matricule existe déjà.',
+            'niveau_etude.in' => 'Le niveau doit être Licence ou Master.',
         ]);
-
-        // Générer automatiquement le matricule pour les étudiants
-        $matricule = null;
-        if ($validated['role'] === 'etudiant') {
-            $matricule = $this->genererMatricule($validated['niveau_etude']);
-        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'matricule' => $matricule,
+            'matricule' => $validated['matricule'] ?? null,
             'role' => $validated['role'],
             'telephone' => $validated['telephone'] ?? null,
             'departement' => $validated['departement'] ?? null,
@@ -91,30 +91,6 @@ class AuthController extends Controller
 
         return redirect()->route($user->role . '.dashboard')
             ->with('success', 'Inscription réussie ! Bienvenue sur la plateforme.');
-    }
-
-    /**
-     * Générer un matricule unique pour un étudiant
-     */
-    private function genererMatricule($niveauEtude)
-    {
-        $annee = date('Y');
-        $niveau = substr($niveauEtude, 0, 1); // L ou M
-
-        // Trouver le dernier matricule de l'année
-        $dernierMatricule = User::where('matricule', 'like', "$niveau$annee%")
-            ->orderBy('matricule', 'desc')
-            ->first();
-
-        if ($dernierMatricule) {
-            // Extraire le numéro et l'incrémenter
-            $numero = intval(substr($dernierMatricule->matricule, -4)) + 1;
-        } else {
-            $numero = 1;
-        }
-
-        // Format: L20240001 ou M20240001
-        return sprintf("%s%s%04d", $niveau, $annee, $numero);
     }
 
     public function logout(Request $request)

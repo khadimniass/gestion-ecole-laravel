@@ -91,7 +91,7 @@
                                 </a>
 
                                 @can('update', $sujet)
-                                    <a href="{{ route('sujets.edit', $sujet) }}"
+                                    <a href="{{ route('enseignant.sujets.edit', $sujet) }}"
                                        class="btn btn-sm btn-outline-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>

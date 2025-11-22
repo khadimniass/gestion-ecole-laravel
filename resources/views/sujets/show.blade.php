@@ -169,7 +169,7 @@
                 </div>
                 <div class="card-body">
                     @can('update', $sujet)
-                        <a href="{{ route('sujets.edit', $sujet) }}" class="btn btn-warning w-100 mb-2">
+                        <a href="{{ route('enseignant.sujets.edit', $sujet) }}" class="btn btn-warning w-100 mb-2">
                             <i class="fas fa-edit"></i> Modifier
                         </a>
                     @endcan

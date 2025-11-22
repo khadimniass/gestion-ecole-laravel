@@ -5,6 +5,7 @@ use App\Http\Controllers\AnneeUniversitaireController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemandeEncadrementController;
+use App\Http\Controllers\DepartementController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\GroupeController;
@@ -127,6 +128,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Gestion des années universitaires
         Route::resource('annees-universitaires', AnneeUniversitaireController::class);
+
+        // Gestion des départements
+        Route::resource('departements', DepartementController::class);
 
         // Gestion des filières
         Route::resource('filieres', FiliereController::class);
