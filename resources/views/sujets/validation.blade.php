@@ -91,7 +91,7 @@
                                                title="Voir les détails">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <form action="{{ route('sujets.valider', $sujet) }}"
+                                            <form action="{{ route('admin.sujets.valider', $sujet) }}"
                                                   method="POST"
                                                   class="d-inline">
                                                 @csrf
@@ -118,7 +118,7 @@
                                 <div class="modal fade" id="rejetModal{{ $sujet->id }}" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <form action="{{ route('sujets.rejeter', $sujet) }}" method="POST">
+                                            <form action="{{ route('admin.sujets.rejeter', $sujet) }}" method="POST">
                                                 @csrf
                                                 @method('PATCH')
                                                 <div class="modal-header bg-danger text-white">

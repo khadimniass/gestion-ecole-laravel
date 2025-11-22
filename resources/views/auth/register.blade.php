@@ -57,19 +57,34 @@
                         <!-- Champs pour Étudiant -->
                         <div id="etudiant-fields" style="display: none;">
                             <div class="mb-3">
+                                <label for="matricule" class="form-label">Matricule <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control @error('matricule') is-invalid @enderror"
+                                       id="matricule"
+                                       name="matricule"
+                                       value="{{ old('matricule') }}"
+                                       placeholder="Ex: C98363"
+                                       pattern="C\d{5}"
+                                       maxlength="6">
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> Format: C suivi de 5 chiffres (ex: C98363, C73652)
+                                </small>
+                                @error('matricule')
+                                <span class="text-danger small">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
                                 <label for="filiere_id" class="form-label">Filière <span class="text-danger">*</span></label>
                                 <select class="form-select @error('filiere_id') is-invalid @enderror"
                                         id="filiere_id" name="filiere_id">
                                     <option value="">-- Choisir une filière --</option>
                                     @foreach($filieres as $filiere)
                                         <option value="{{ $filiere->id }}" {{ old('filiere_id') == $filiere->id ? 'selected' : '' }}>
-                                            {{ $filiere->nom }} ({{ $filiere->niveau }})
+                                            {{ $filiere->nom }} ({{ ucfirst($filiere->niveau) }})
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted">
-                                    <i class="fas fa-info-circle"></i> Votre matricule sera généré automatiquement après l'inscription
-                                </small>
                                 @error('filiere_id')
                                 <span class="text-danger small">{{ $message }}</span>
                                 @enderror
@@ -80,12 +95,12 @@
                                 <select class="form-select @error('niveau_etude') is-invalid @enderror"
                                         id="niveau_etude" name="niveau_etude">
                                     <option value="">-- Choisir un niveau --</option>
-                                    <option value="L1" {{ old('niveau_etude') == 'L1' ? 'selected' : '' }}>Licence 1 (L1)</option>
-                                    <option value="L2" {{ old('niveau_etude') == 'L2' ? 'selected' : '' }}>Licence 2 (L2)</option>
-                                    <option value="L3" {{ old('niveau_etude') == 'L3' ? 'selected' : '' }}>Licence 3 (L3)</option>
-                                    <option value="M1" {{ old('niveau_etude') == 'M1' ? 'selected' : '' }}>Master 1 (M1)</option>
-                                    <option value="M2" {{ old('niveau_etude') == 'M2' ? 'selected' : '' }}>Master 2 (M2)</option>
+                                    <option value="licence" {{ old('niveau_etude') == 'licence' ? 'selected' : '' }}>Licence</option>
+                                    <option value="master" {{ old('niveau_etude') == 'master' ? 'selected' : '' }}>Master</option>
                                 </select>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> Seuls les étudiants en Licence 3 ou Master 2 peuvent faire un PFE
+                                </small>
                                 @error('niveau_etude')
                                 <span class="text-danger small">{{ $message }}</span>
                                 @enderror
@@ -177,7 +192,7 @@
             const enseignantFields = document.getElementById('enseignant-fields');
             
             // Champs requis selon le rôle
-            const etudiantInputs = ['filiere_id', 'niveau_etude'];
+            const etudiantInputs = ['matricule', 'filiere_id', 'niveau_etude'];
             const enseignantInputs = ['departement'];
 
             function toggleFields() {

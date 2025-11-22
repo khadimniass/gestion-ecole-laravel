@@ -36,7 +36,7 @@ class UserPolicy
      */
     public function create(User $user)
     {
-        return $user->estAdmin();
+        return $user->estAdmin() || $user->estCoordinateur();
     }
 
     /**

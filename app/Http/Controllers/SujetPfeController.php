@@ -261,7 +261,7 @@ class SujetPfeController extends Controller
             ->disponibles();
 
         // Filtrer par niveau (licence ou master) selon le niveau de l'étudiant
-        $niveauEtudiant = substr($user->niveau_etude, 0, 1) === 'L' ? 'licence' : 'master';
+        $niveauEtudiant = $user->niveau_etude; // 'licence' ou 'master'
         $query->parNiveau($niveauEtudiant);
 
         // Filtres optionnels
