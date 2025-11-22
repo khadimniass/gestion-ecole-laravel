@@ -274,7 +274,7 @@
                         <a href="{{ route('admin.filieres.index') }}" class="btn btn-info">
                             <i class="fas fa-graduation-cap"></i> Filières
                         </a>
-                        <a href="#" class="btn btn-info">
+                        <a href="{{ route('admin.departements.index') }}" class="btn btn-info">
                             <i class="fas fa"></i> Départements
                         </a>
                         <a href="{{ route('admin.sujets.validation') }}" class="btn btn-warning">
